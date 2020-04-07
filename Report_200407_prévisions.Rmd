@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo=FALSE)
 
 # Principe du modèle
 
-On calcule les paramètres d'un modèle linéaire ($cas = a + b.temps$), d'un modèle exponentiel ($ln(cas) = a + b.temps$) et d'un modèle log-log ($ln(cas) = a +ln(temps)$ sur les 10 derniers jours d'une série d'observation. On compare leurs r^2^ et on utilise le meilleur modèle (celui qui a le plus petit r^2^ pour prédire le nombre de cas au Jt^ième^ jour après la fin de la série.
+On calcule les paramètres d'un modèle linéaire ($cas = a + b.temps$), d'un modèle exponentiel ($ln(cas) = a + b.temps$) et d'un modèle log-log ($ln(cas) = a +ln(temps)$ sur les 10 derniers jours d'une série d'observation. On compare leurs r^2^ et on utilise le meilleur modèle (celui qui a le plus petit r^2^ pour prédire le nombre de cas au J^ième^ jour après la fin de la série.
 
 Pour la validation voir fichier 'Report_200406_test_model.docx'
 
