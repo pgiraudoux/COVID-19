@@ -1,0 +1,121 @@
+---
+title: "Essais de classement de la dynamique des cas COVID-19"
+author: "PG"
+date: "`r format(Sys.time(), '%d %B %Y %H:%M')`"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache=TRUE)
+knitr::opts_chunk$set(fig.height=10)
+knitr::opts_chunk$set(fig.width=10)
+knitr::opts_chunk$set(echo=FALSE)
+```
+
+
+# Principe
+
+On compare la dissimilarité des séries temporelles en les alignant toutes à partir du 1^er^cas observé. On part donc d'un tableau pays (lignes) x jours (colonnes) chaque cellule contenant le nombre de cas rapporté.
+
+Une multitude de méthodes et d'approches existent pour ordonner ce genre de données (analyse factorielle des correspondances, etc), ou pour les classer (classifications hiérarchiques, etc.), chacune avec un nombre impressionnant de variantes. 
+
+On se limite ici à quelques exemples illustratifs préparatoires à la réunion de demain, utilisant, toutes, les valeurs d'argument par défaut des fonctions utilisées (une analyse de sensibilité prendrait trop de temps). Les résultats sont donc à prendre avec prudence et doivent être éclairés/questionné par les gens de terrain.
+
+Le nombre de possibilités est tel (utiliser les valeurs, réelles, leur logarithme, les normer ou non, etc) qu'en découle aussi un grand nombre de méthodes possibles pour les traiter, avec chacune un grand nombre de variantes d'algorithmes possibles... On a donc vite une exponentiation des possibilités qu'il est impossible d'explorer ici. Même la question de  départ, qui doit guider le reste, n'est pas évidente à choisir: doit on privilégier les valeurs absolues, leur logarithme, la vitesse de changement plutôt que la valeur instantanée, etc. ? Pas de réponse parfaite sans analyses approfondies et aller-et-retour terrain - résultats.
+
+
+# Origine des données
+
+ECDC: [https://opendata.ecdc.europa.eu/covid19/casedistribution/csv](https://opendata.ecdc.europa.eu/covid19/casedistribution/csv)
+
+```{r, echo = FALSE,results='hide'}
+
+library(pgirmess)
+library(ade4)
+
+ecdc<-read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv")
+head(ecdc[ecdc$countriesAndTerritories=="France",])
+tail(ecdc[ecdc$countriesAndTerritories=="France",])
+names(ecdc)[1]<-"dateRep"
+ecdc$dateRep<-strptime(ecdc$dateRep,format="%d/%m/%Y")
+
+load("series10.Rdata")
+
+```
+
+# Sélection des séries sur 15 jours
+
+## Sélection
+
+On sélectionne des séries de 15 jours à partir du 1^er^ cas.
+
+```{r}
+
+idx15j<-which(sapply(series10,length)>=20)
+mat15j<-t(sapply(series10[idx15j],function(x) x[1:15]))
+coa15j<-dudi.coa(mat15j,scannf=FALSE,nf=2)
+
+
+```
+
+## Analyse des correspondances
+
+L'idée est ici de distibuer les pays dans un espace qui permet d'interpréter les proximité (ici la distance du Xi2) en terme de ressemblance: plus les pays sont proches, plus leur dynamique à partir du 1er cas se ressemble.
+
+```{r}
+plot(coa15j$li[,1:2],type="n",asp=1)
+abline(v=0,h=0,col="grey",lty=2)
+text(coa15j$li[,1:2],labels=rownames(mat15j),cex=0.8)
+
+```
+
+
+## Classification hiérarchique
+
+Cette technique est utilisée pour introduire des discontinuité (un classement) dans l'espace ordonné ci-dessus. Attention, les interprétation se font en fonction de l'arborescence, pas par la proximité en bas de l'arbre. Par exemple le Congo et le Maroc sont éloignés parce qu'ils sont sur des arborescences différentes. Par conttre l'Egypte et Madagascar sont proches, parce que situés sur deux branches immédiates sous une bifurcation. Penser l'arbre comme un mobile dont on peut faire tourner les branches au niveau des noeuds.  Par exemple, si on tourne la branche au niveau de la bifurcation Congo et le reste Egypte, etc., le Congo pourrait se trouver à coté d'Eswatini sans que ca change quoi que ce soit à l'interprétation: les deux sont sur des arborescences très éloignées (il faut remonter haut pour trouver la bifuraction; en fait tout en haut)
+
+```{r}
+
+plot(hclust(dist(coa15j$li)))
+
+
+```
+
+# Sélection des séries sur 20 jours
+
+Bien sûr sur 20 jours on diminue le nombre de pays qui peuvent être inclus...
+
+## Sélection
+
+On sélectionne des séries de 20 jours à partir du 1^er^ cas.
+
+
+```{r}
+
+idx20j<-which(sapply(series10,length)>=20)
+mat20j<-t(sapply(series10[idx20j],function(x) x[1:20]))
+coa20j<-dudi.coa(mat20j,scannf=FALSE,nf=2)
+
+
+```
+
+## Analyse des correspondances
+
+
+```{r}
+plot(coa20j$li[,1:2],type="n",asp=1)
+abline(v=0,h=0,col="grey",lty=2)
+text(coa20j$li[,1:2],labels=rownames(mat20j),cex=0.8)
+
+```
+
+
+## Classification hiérarchique
+
+
+```{r}
+
+plot(hclust(dist(coa20j$li)))
+
+```

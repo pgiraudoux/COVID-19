@@ -82,3 +82,29 @@ for(i in 1:nrow(ACOMS)){
 
 legend("topleft",legend=c("African countries","Italy","France","Spain","Germany"), lty=1,col=c("black",cols),bty="n")
 
+
+
+#### classification
+
+library(ade4)
+
+idx15j<-which(sapply(series10,length)>=15)
+
+mat15j<-t(sapply(series10[idx15j],function(x) x[1:15]))
+
+coa15j<-dudi.coa(mat15j,scannf=FALSE,nf=2)
+
+
+par(mfrow=c(1,2))
+scatter(coa15j,clab.col=0)
+
+plot(coa15j$li[,1:2],type="n",asp=1)
+abline(v=0,h=0,col="grey",lty=2)
+text(coa15j$li[,1:2],labels=rownames(mat15j),cex=0.8)
+
+
+plot(hclust(dist(coa15j$li)))
+
+
+lapply(series10, function(x) x[1:15])
+

@@ -78,6 +78,9 @@ firstcase<-which(cumsum(pays$cases)>start)[1]
 series10[[i]]<-cumsum(pays$cases)[firstcase:length(pays$dateRep)]
 }
 
+
+save(series10,file="series10.Rdata")
+
 ```
 
 `r nrow(size10)` pays satisfont aux critères
