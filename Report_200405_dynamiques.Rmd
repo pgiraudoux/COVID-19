@@ -1,0 +1,359 @@
+---
+title: "Typologie de la dynamique des rapportages COVID-19 en Afrique"
+author: "PG"
+date: "`r format(Sys.time(), '%d %B %Y %H:%M')`"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache=TRUE)
+knitr::opts_chunk$set(fig.height=8)
+knitr::opts_chunk$set(fig.width=8)
+```
+
+
+# Origine des données
+
+ECDC: [https://opendata.ecdc.europa.eu/covid19/casedistribution/csv](https://opendata.ecdc.europa.eu/covid19/casedistribution/csv)
+
+```{r, echo = FALSE,results='hide'}
+
+ecdc<-read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv")
+head(ecdc[ecdc$countriesAndTerritories=="France",])
+tail(ecdc[ecdc$countriesAndTerritories=="France",])
+names(ecdc)[1]<-"dateRep"
+ecdc$dateRep<-strptime(ecdc$dateRep,format="%d/%m/%Y")
+
+load("ACOMS.Rdata")
+
+```
+
+# Récapitulatif des observations
+
+J'ai essayé de voir en quoi les épidémies africaines étaient semblables ou non, aux épidémies constatées ailleurs. Une référence est bien sûr l'épidémie européenne, qui a démarré plus-tôt qu'en Afrique et dont les effets attendus dus aux confinement tardent à se faire sentir (mais un infléchissement des courbes a été, depuis quelques jours, constaté en Italie, et les entrées hospitalières commencent à diminuer en France).
+
+Bref, pour faciliter les comparaisons, j'ai aligné toutes les courbes cumulatives du nombre de cas confirmés, à partir du jour où plus de 10 cas ont été rapportés, puis à partir de 100 cas. Voici ce que ca donne sur une échelle échelle normale, puis sur une échelle logarithmique.
+
+## Alignement au 1^er^ jour > 10 cas
+
+### Échelle normale
+
+```{r, echo=FALSE}
+start<-10
+paysRef<-ecdc[ecdc$countriesAndTerritories=="Italy",]
+paysRef<-paysRef[order(paysRef$dateRep),]
+firstcaseRef<-which(cumsum(paysRef$cases)>=start)[1]
+par(mar=c(5.1,5.1,4.1,2.1))
+plot(1:length(firstcaseRef:length(paysRef$dateRep)),cumsum(paysRef$cases)[firstcaseRef:length(paysRef$dateRep)],las=1,ylab="",xlab="Time (jours)",type="l",col="green")
+mtext("Cases",2,line=3.5)
+
+
+selec<-c("France","Spain","Germany")
+cols<-c("green","blue","orange","brown")
+
+for(i in 1:length(selec)){
+  pays<-ecdc[ecdc$countriesAndTerritories==selec[i],]
+  pays<-pays[order(pays$dateRep),]
+  firstcase<-which(cumsum(pays$cases)>start)[1]
+  if(!is.na(firstcase)) {
+    lines(1:length(firstcase:length(pays$dateRep)),cumsum(pays$cases)[firstcase:length(pays$dateRep)],col=cols[i+1])
+  }
+}
+
+compteur<-0
+for(i in 1:nrow(ACOMS)){
+pays<-ecdc[ecdc$countriesAndTerritories==as.character(ACOMS$country[i]),]
+pays<-pays[order(pays$dateRep),]
+firstcase<-which(cumsum(pays$cases)>start)[1]
+if(!is.na(firstcase)) {
+  compteur<-compteur+1
+  lines(1:length(firstcase:length(pays$dateRep)),cumsum(pays$cases)[firstcase:length(pays$dateRep)])
+}
+}
+
+legend("topleft",legend=c("African countries","Italy","France","Spain","Germany"), lty=1,col=c("black",cols),bty="n")
+
+```
+
+On peut donc constater que l'épidémie à démarré beaucoup plus vite en Italie et en Espagne qu'en France et en Allemagne. Tous les pays africains apparaissent comme suivre la trajectoire basse de la France et de l'Allemagne. Réalité ou biais de détection ? Voir plus bas.
+
+### Échelle logarithmique (base 10)
+
+```{r, echo=FALSE}
+start<-10
+paysRef<-ecdc[ecdc$countriesAndTerritories=="Italy",]
+paysRef<-paysRef[order(paysRef$dateRep),]
+firstcaseRef<-which(cumsum(paysRef$cases)>=start)[1]
+par(mar=c(5.1,5.1,4.1,2.1))
+plot(1:length(firstcaseRef:length(paysRef$dateRep)),log10(cumsum(paysRef$cases)[firstcaseRef:length(paysRef$dateRep)]),las=1,ylab="",xlab="Time (jours)",type="l",col="green")
+mtext("log10(cases)",2,line=3.5)
+
+
+selec<-c("France","Spain","Germany")
+cols<-c("green","blue","orange","brown")
+
+for(i in 1:length(selec)){
+  pays<-ecdc[ecdc$countriesAndTerritories==selec[i],]
+  pays<-pays[order(pays$dateRep),]
+  firstcase<-which(cumsum(pays$cases)>start)[1]
+  if(!is.na(firstcase)) {
+    lines(1:length(firstcase:length(pays$dateRep)),log10(cumsum(pays$cases)[firstcase:length(pays$dateRep)]),col=cols[i+1])
+  }
+}
+
+compteur<-0
+for(i in 1:nrow(ACOMS)){
+pays<-ecdc[ecdc$countriesAndTerritories==as.character(ACOMS$country[i]),]
+pays<-pays[order(pays$dateRep),]
+firstcase<-which(cumsum(pays$cases)>start)[1]
+if(!is.na(firstcase)) {
+  compteur<-compteur+1
+  lines(1:length(firstcase:length(pays$dateRep)),log10(cumsum(pays$cases)[firstcase:length(pays$dateRep)]))
+}
+}
+
+legend("topleft",legend=c("African countries","Italy","France","Spain","Germany"), lty=1,col=c("black",cols),bty="n")
+```
+
+Les pays africains se trouvent en position intermédiaire entre les deux "types" de cinétiques ouest-européennes
+
+### Repérage des pays africains
+
+```{r, , echo = FALSE}
+plot(c(1,32),c(1,3.2),las=1,ylab="log10(cases)",xlab="Time (jours)",type="n")
+
+for(i in 1:nrow(ACOMS)){
+pays<-ecdc[ecdc$countriesAndTerritories==as.character(ACOMS$country[i]),]
+pays<-pays[order(pays$dateRep),]
+firstcase<-which(cumsum(pays$cases)>start)[1]
+if(!is.na(firstcase)) {
+    x<-1:length(firstcase:length(pays$dateRep))
+    y<-log10(cumsum(pays$cases)[firstcase:length(pays$dateRep)])
+  lines(x,y)
+  text(x=length(x),y=y[length(y)],labels=as.character(ACOMS$country[i]),cex=1,pos=4,col="red")
+}
+}
+
+
+```
+
+
+## Alignement au 1er jour > 100 cas
+
+
+
+### Échelle normale
+
+```{r, echo=FALSE}
+start<-100
+paysRef<-ecdc[ecdc$countriesAndTerritories=="Italy",]
+paysRef<-paysRef[order(paysRef$dateRep),]
+firstcaseRef<-which(cumsum(paysRef$cases)>=start)[1]
+par(mar=c(5.1,5.1,4.1,2.1))
+plot(1:length(firstcaseRef:length(paysRef$dateRep)),cumsum(paysRef$cases)[firstcaseRef:length(paysRef$dateRep)],las=1,ylab="",xlab="Time (jours)",type="l",col="green")
+mtext("Cases",2,line=3.5)
+
+
+selec<-c("France","Spain","Germany")
+cols<-c("green","blue","orange","brown")
+
+for(i in 1:length(selec)){
+  pays<-ecdc[ecdc$countriesAndTerritories==selec[i],]
+  pays<-pays[order(pays$dateRep),]
+  firstcase<-which(cumsum(pays$cases)>start)[1]
+  if(!is.na(firstcase)) {
+    lines(1:length(firstcase:length(pays$dateRep)),cumsum(pays$cases)[firstcase:length(pays$dateRep)],col=cols[i+1])
+  }
+}
+
+compteur<-0
+for(i in 1:nrow(ACOMS)){
+pays<-ecdc[ecdc$countriesAndTerritories==as.character(ACOMS$country[i]),]
+pays<-pays[order(pays$dateRep),]
+firstcase<-which(cumsum(pays$cases)>start)[1]
+if(!is.na(firstcase)) {
+  compteur<-compteur+1
+  lines(1:length(firstcase:length(pays$dateRep)),cumsum(pays$cases)[firstcase:length(pays$dateRep)])
+}
+}
+
+legend("topleft",legend=c("African countries","Italy","France","Spain","Germany"), lty=1,col=c("black",cols),bty="n")
+
+```
+
+Les cinétiques des européens se rapprochent, mais les pays africains semblent globalement toujours avoir une progression plus lente.
+
+### Échelle logarithmique (base 10)
+
+```{r, echo=FALSE}
+start<-100
+paysRef<-ecdc[ecdc$countriesAndTerritories=="Italy",]
+paysRef<-paysRef[order(paysRef$dateRep),]
+firstcaseRef<-which(cumsum(paysRef$cases)>=start)[1]
+par(mar=c(5.1,5.1,4.1,2.1))
+plot(1:length(firstcaseRef:length(paysRef$dateRep)),log10(cumsum(paysRef$cases)[firstcaseRef:length(paysRef$dateRep)]),las=1,ylab="",xlab="Time (jours)",type="l",col="green")
+mtext("log10(cases)",2,line=3.5)
+
+
+selec<-c("France","Spain","Germany")
+cols<-c("green","blue","orange","brown")
+
+for(i in 1:length(selec)){
+  pays<-ecdc[ecdc$countriesAndTerritories==selec[i],]
+  pays<-pays[order(pays$dateRep),]
+  firstcase<-which(cumsum(pays$cases)>start)[1]
+  if(!is.na(firstcase)) {
+    lines(1:length(firstcase:length(pays$dateRep)),log10(cumsum(pays$cases)[firstcase:length(pays$dateRep)]),col=cols[i+1])
+  }
+}
+
+compteur<-0
+for(i in 1:nrow(ACOMS)){
+pays<-ecdc[ecdc$countriesAndTerritories==as.character(ACOMS$country[i]),]
+pays<-pays[order(pays$dateRep),]
+firstcase<-which(cumsum(pays$cases)>start)[1]
+if(!is.na(firstcase)) {
+  compteur<-compteur+1
+  lines(1:length(firstcase:length(pays$dateRep)),log10(cumsum(pays$cases)[firstcase:length(pays$dateRep)]))
+}
+}
+
+legend("topleft",legend=c("African countries","Italy","France","Spain","Germany"), lty=1,col=c("black",cols),bty="n")
+```
+
+Idem. Noter qu'en plus de différences d'amplitude, les pentes diffèrent.
+
+### Repérage des pays africains
+
+```{r, , echo = FALSE}
+plot(c(1,25),c(2,3.2),las=1,ylab="log10(cases)",xlab="Time (jours)",type="n")
+
+for(i in 1:nrow(ACOMS)){
+pays<-ecdc[ecdc$countriesAndTerritories==as.character(ACOMS$country[i]),]
+pays<-pays[order(pays$dateRep),]
+firstcase<-which(cumsum(pays$cases)>start)[1]
+if(!is.na(firstcase)) {
+    x<-1:length(firstcase:length(pays$dateRep))
+    y<-log10(cumsum(pays$cases)[firstcase:length(pays$dateRep)])
+  lines(x,y)
+  text(x=length(x),y=y[length(y)],labels=as.character(ACOMS$country[i]),cex=1,pos=4,col="red")
+}
+}
+
+```
+
+
+# Sensibilité au taux de détection
+
+Ici, on suppose un biais de détection plus important dans les pays africains (la fraction des malades COVID détectée serait plus faible qu'en Europe). On se propose donc de simuler une variation de ce biais pour en explorer les effets. 
+
+On pose une valeur de biais par excès de 10 (on détecterait 10 fois moins bien les cas qu'en Europe: c'est juste une hypothèse exploratoire d'école).
+
+## alignement au 1^er^ jour > 10 cas
+
+```{r, echo=FALSE}
+
+start<-10
+paysRef<-ecdc[ecdc$countriesAndTerritories=="Italy",]
+paysRef<-paysRef[order(paysRef$dateRep),]
+firstcaseRef<-which(cumsum(paysRef$cases)>=start)[1]
+par(mar=c(5.1,5.1,4.1,2.1))
+plot(1:length(firstcaseRef:length(paysRef$dateRep)),log10(cumsum(paysRef$cases)[firstcaseRef:length(paysRef$dateRep)]),las=1,ylab="log10(cases)",xlab="Time (jours)",type="l",col="green",ylim=c(0.9,max(log10(cumsum(paysRef$cases)[firstcaseRef:length(paysRef$dateRep)]))))
+
+
+selec<-c("France","Spain","Germany")
+cols<-c("green","blue","orange","brown")
+
+for(i in 1:length(selec)){
+  pays<-ecdc[ecdc$countriesAndTerritories==selec[i],]
+  pays<-pays[order(pays$dateRep),]
+  firstcase<-which(cumsum(pays$cases)>start)[1]
+  if(!is.na(firstcase)) {
+    lines(1:length(firstcase:length(pays$dateRep)),log10(cumsum(pays$cases)[firstcase:length(pays$dateRep)]),col=cols[i+1])
+  }
+}
+
+start<-1
+biais<-10
+for(i in 1:nrow(ACOMS)){
+pays<-ecdc[ecdc$countriesAndTerritories==as.character(ACOMS$country[i]),]
+pays<-pays[order(pays$dateRep),]
+firstcase<-which(cumsum(pays$cases)>start)[1]
+if(!is.na(firstcase)) {
+  lines(1:length(firstcase:length(pays$dateRep)),log10(biais*cumsum(pays$cases)[firstcase:length(pays$dateRep)]))
+}
+}
+
+legend("topleft",legend=c("African countries","Italy","France","Spain","Germany"), lty=1,col=c("black",cols),bty="n")
+
+```
+
+
+On peut constater une légère translation des courbes vers le haut, mais la position relative des pays africains par rapport aux européens n'est pas excessivement affectée, mais surtout (c'est ce j'avais expliqué par mail), un biais constant n'affecte pas la pente des courbes, généralement plus faible en Afrique. Même l'Afrique du Sud, qui est la plus proche des courbes italiennes ou espagnoles, montre un tassement à partir du 20^ème^jour...
+
+## alignement au 1^er^ jour > 100 cas
+
+
+
+```{r, echo=FALSE}
+
+start<-100
+paysRef<-ecdc[ecdc$countriesAndTerritories=="Italy",]
+paysRef<-paysRef[order(paysRef$dateRep),]
+firstcaseRef<-which(cumsum(paysRef$cases)>=start)[1]
+par(mar=c(5.1,5.1,4.1,2.1))
+plot(1:length(firstcaseRef:length(paysRef$dateRep)),log10(cumsum(paysRef$cases)[firstcaseRef:length(paysRef$dateRep)]),las=1,ylab="log10(cases)",xlab="Time (jours)",type="l",col="green")
+
+
+selec<-c("France","Spain","Germany")
+cols<-c("green","blue","orange","brown")
+
+for(i in 1:length(selec)){
+  pays<-ecdc[ecdc$countriesAndTerritories==selec[i],]
+  pays<-pays[order(pays$dateRep),]
+  firstcase<-which(cumsum(pays$cases)>start)[1]
+  if(!is.na(firstcase)) {
+    lines(1:length(firstcase:length(pays$dateRep)),log10(cumsum(pays$cases)[firstcase:length(pays$dateRep)]),col=cols[i+1])
+  }
+}
+
+start<-10
+biais<-10
+for(i in 1:nrow(ACOMS)){
+pays<-ecdc[ecdc$countriesAndTerritories==as.character(ACOMS$country[i]),]
+pays<-pays[order(pays$dateRep),]
+firstcase<-which(cumsum(pays$cases)>start)[1]
+if(!is.na(firstcase)) {
+  lines(1:length(firstcase:length(pays$dateRep)),log10(biais*cumsum(pays$cases)[firstcase:length(pays$dateRep)]))
+}
+}
+
+legend("topleft",legend=c("African countries","Italy","France","Spain","Germany"), lty=1,col=c("black",cols),bty="n")
+
+```
+
+On voit là aussi que si certaines courbes s'intègrent dans les dynamiques observées en Europe , la plupart des courbes s'aplatissent beaucoup plus vite
+
+### Repérage des pays africains
+
+```{r,echo = FALSE}
+plot(c(1,35),c(2,4.2),las=1,ylab="log10(cases)",xlab="Time (jours)",type="n")
+
+
+start<-10
+biais<-10
+for(i in 1:nrow(ACOMS)){
+pays<-ecdc[ecdc$countriesAndTerritories==as.character(ACOMS$country[i]),]
+pays<-pays[order(pays$dateRep),]
+firstcase<-which(cumsum(pays$cases)>start)[1]
+if(!is.na(firstcase)) {
+    x<-1:length(firstcase:length(pays$dateRep))
+    y<-log10(biais*cumsum(pays$cases)[firstcase:length(pays$dateRep)])
+  lines(x,y)
+  text(x=length(x),y=y[length(y)],labels=as.character(ACOMS$country[i]),cex=1,pos=4,col="red")
+}
+}
+
+```
+
