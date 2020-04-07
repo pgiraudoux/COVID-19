@@ -1,0 +1,763 @@
+COUNTRY	ECDC
+Algeria	Algeria
+Angola	Angola
+Angola	Angola
+Angola	Angola
+Angola	Angola
+Angola	Angola
+Angola	Angola
+Angola	Angola
+Angola	Angola
+Angola	Angola
+Angola	Angola
+Angola	Angola
+Angola	Angola
+Angola	Angola
+Angola	Angola
+Angola	Angola
+Angola	Angola
+Angola	Angola
+Angola	Angola
+Benin	Benin
+Botswana	Botswana
+Burkina Faso	Burkina_Faso
+Burundi	Burundi
+Cameroon	Cameroon
+Cameroon	Cameroon
+Cameroon	Cameroon
+Cape Verde	Cape_Verde
+Cape Verde	Cape_Verde
+Cape Verde	Cape_Verde
+Cape Verde	Cape_Verde
+Cape Verde	Cape_Verde
+Cape Verde	Cape_Verde
+Cape Verde	Cape_Verde
+Cape Verde	Cape_Verde
+Cape Verde	Cape_Verde
+Cape Verde	Cape_Verde
+Cape Verde	Cape_Verde
+Cape Verde	Cape_Verde
+Cape Verde	Cape_Verde
+Cape Verde	Cape_Verde
+Cape Verde	Cape_Verde
+Central African Republic	Central_African_Republic
+Chad	Chad
+Comoros	NA
+Comoros	NA
+Comoros	NA
+Comoros	NA
+Congo-Brazzaville	Congo
+Cote d`Ivoire	Cote_dIvoire
+Cote d`Ivoire	Cote_dIvoire
+Democratic Republic of Congo	Democratic_Republic_of_the_Congo
+Democratic Republic of Congo	Democratic_Republic_of_the_Congo
+Democratic Republic of Congo	Democratic_Republic_of_the_Congo
+Democratic Republic of Congo	Democratic_Republic_of_the_Congo
+Democratic Republic of Congo	Democratic_Republic_of_the_Congo
+Democratic Republic of Congo	Democratic_Republic_of_the_Congo
+Democratic Republic of Congo	Democratic_Republic_of_the_Congo
+Democratic Republic of Congo	Democratic_Republic_of_the_Congo
+Democratic Republic of Congo	Democratic_Republic_of_the_Congo
+Democratic Republic of Congo	Democratic_Republic_of_the_Congo
+Democratic Republic of Congo	Democratic_Republic_of_the_Congo
+Democratic Republic of Congo	Democratic_Republic_of_the_Congo
+Democratic Republic of Congo	Democratic_Republic_of_the_Congo
+Djibouti	Djibouti
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Egypt	Egypt
+Equatorial Guinea	Equatorial_Guinea
+Equatorial Guinea	Equatorial_Guinea
+Equatorial Guinea	Equatorial_Guinea
+Equatorial Guinea	Equatorial_Guinea
+Equatorial Guinea	Equatorial_Guinea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Eritrea	Eritrea
+Ethiopia	Ethiopia
+Gabon	Gabon
+Gabon	Gabon
+Gabon	Gabon
+Gabon	Gabon
+Gabon	Gabon
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Gambia	Gambia
+Ghana	Ghana
+Guinea	Guinea
+Guinea	Guinea
+Guinea	Guinea
+Guinea	Guinea
+Guinea	Guinea
+Guinea	Guinea
+Guinea	Guinea
+Guinea	Guinea
+Guinea	Guinea
+Guinea	Guinea
+Guinea	Guinea
+Guinea	Guinea
+Guinea	Guinea
+Guinea	Guinea
+Guinea	Guinea
+Guinea	Guinea
+Guinea	Guinea
+Guinea	Guinea
+Guinea	Guinea
+Guinea	Guinea
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Guinea-Bissau	Guinea_Bissau
+Kenya	Kenya
+Kenya	Kenya
+Kenya	Kenya
+Kenya	Kenya
+Kenya	Kenya
+Kenya	Kenya
+Kenya	Kenya
+Kenya	Kenya
+Kenya	Kenya
+Kenya	Kenya
+Kenya	Kenya
+Kenya	Kenya
+Kenya	Kenya
+Kenya	Kenya
+Kenya	Kenya
+Kenya	Kenya
+Kenya	Kenya
+Kenya	Kenya
+Kenya	Kenya
+Kenya	Kenya
+Kenya	Kenya
+Lesotho	NA
+Liberia	Liberia
+Libya	Libya
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Madagascar	Madagascar
+Malawi	Malawi
+Malawi	Malawi
+Malawi	Malawi
+Malawi	Malawi
+Mali	Mali
+Mauritania	Mauritania
+Mauritania	Mauritania
+Mauritania	Mauritania
+Mauritania	Mauritania
+Mauritania	Mauritania
+Mauritania	Mauritania
+Mauritania	Mauritania
+Mauritania	Mauritania
+Mauritania	Mauritania
+Mauritania	Mauritania
+Morocco	Morocco
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Mozambique	Mozambique
+Namibia	Namibia
+Namibia	Namibia
+Namibia	Namibia
+Namibia	Namibia
+Namibia	Namibia
+Namibia	Namibia
+Namibia	Namibia
+Niger	Niger
+Nigeria	Nigeria
+Nigeria	Nigeria
+Nigeria	Nigeria
+Nigeria	Nigeria
+Rwanda	Rwanda
+Sao Tome and Principe	NA
+Sao Tome and Principe	NA
+Sao Tome and Principe	NA
+Sao Tome and Principe	NA
+Sao Tome and Principe	NA
+Senegal	Senegal
+Senegal	Senegal
+Senegal	Senegal
+Senegal	Senegal
+Senegal	Senegal
+Senegal	Senegal
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Sierra Leone	Sierra_Leone
+Somalia	Somalia
+Somalia	Somalia
+Somalia	Somalia
+Somalia	Somalia
+Somalia	Somalia
+Somalia	Somalia
+Somalia	Somalia
+Somalia	Somalia
+Somalia	Somalia
+Somalia	Somalia
+Somalia	Somalia
+Somalia	Somalia
+Somalia	Somalia
+Somalia	Somalia
+Somalia	Somalia
+South Africa	South_Africa
+South Africa	South_Africa
+South Africa	South_Africa
+South Africa	South_Africa
+South Africa	South_Africa
+South Africa	South_Africa
+South Africa	South_Africa
+South Africa	South_Africa
+South Africa	South_Africa
+South Africa	South_Africa
+South Africa	South_Africa
+South Africa	South_Africa
+Sudan	Sudan
+Swaziland	Eswatini
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Tanzania	United_Republic_of_Tanzania
+Togo	Togo
+Tunisia	Tunisia
+Tunisia	Tunisia
+Tunisia	Tunisia
+Tunisia	Tunisia
+Uganda	Uganda
+Western Sahara	NA
+Zambia	Zambia
+Zimbabwe	Zimbabwe

@@ -1,0 +1,51 @@
+ID	CODE	COUNTRY	ECDC
+318	GAM	Gambia	Gambia
+1	ALG	Algeria	Algeria
+2	ANG	Angola	Angola
+20	BEN	Benin	Benin
+21	BOT	Botswana	Botswana
+22	BUF	Burkina Faso	Burkina_Faso
+23	BUR	Burundi	Burundi
+24	CAM	Cameroon	Cameroon
+64	DJI	Djibouti	Djibouti
+65	EGY	Egypt	Egypt
+42	CAR	Central African Republic	Central_African_Republic
+43	CHA	Chad	Chad
+51	ZAI	Democratic Republic of Congo	Democratic_Republic_of_the_Congo
+48	CNG	Congo-Brazzaville	Congo
+49	CDI	Cote d`Ivoire	Cote_dIvoire
+166	EQG	Equatorial Guinea	Equatorial_Guinea
+171	ERI	Eritrea	Eritrea
+312	ETH	Ethiopia	Ethiopia
+313	GAB	Gabon	Gabon
+353	GHA	Ghana	Ghana
+354	GIN	Guinea	Guinea
+374	GUB	Guinea-Bissau	Guinea-Bissau
+424	KEN	Kenya	Kenya
+445	LES	Lesotho	Lesotho
+446	LIB	Liberia	Liberia
+447	LAJ	Libya	Libya
+448	MAD	Madagascar	Madagascar
+531	MAA	Malawi	Malawi
+535	MAL	Mali	Mali
+536	MAU	Mauritania	Mauritania
+546	MOR	Morocco	Morocco
+547	MOZ	Mozambique	Mozambique
+642	SIL	Sierra Leone	Sierra_Leone
+618	NAM	Namibia	Namibia
+625	NIG	Niger	Niger
+626	NIR	Nigeria	Nigeria
+630	RWA	Rwanda	Rwanda
+636	SEN	Senegal	Senegal
+673	SOM	Somalia	Somalia
+688	SOU	South Africa	South_Africa
+700	SSU	South Sudan	South_Sudan
+701	SUD	Sudan	Sudan
+702	SWA	Swaziland	Eswatini
+703	TAN	Tanzania	United_Republic_of_Tanzania
+755	TOG	Togo	Togo
+756	TUN	Tunisia	Tunisia
+760	UGA	Uganda	Uganda
+761	WES	Western Sahara	Western Sahara
+762	ZAM	Zambia	Zambia
+763	ZIM	Zimbabwe	Zimbabwe

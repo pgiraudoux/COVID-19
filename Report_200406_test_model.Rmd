@@ -1,0 +1,240 @@
+---
+title: "Fiabilité d'un modèle de prédiction statistique COVID-19  \nbasé sur 10 jours d'observation"
+author: "PG"
+date: "`r format(Sys.time(), '%d %B %Y %H:%M')`"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache=TRUE)
+knitr::opts_chunk$set(fig.height=8)
+knitr::opts_chunk$set(fig.width=8)
+knitr::opts_chunk$set(echo=FALSE)
+```
+
+
+
+# Principe du modèle
+
+On calcule les paramètres d'un modèle linéaire ($cas = a + b.temps$), d'un modèle exponentiel ($ln(cas) = a + b.temps$) et d'un modèle log-log ($ln(cas) = a +ln(temps)$ sur les 10 jours d'une série d'observation. On compare leurs r^2^ et on utilise le meilleur modèle (celui qui a le plus petit r^2^ pour prédire le nombre de cas au Jt^ième^ jour après la fin de la série.
+
+![](Algorithme2.png)
+
+# Principe de sa validation
+
+En se basant sur des séries connues de 25 jours au moins, on calcule les paramètres du modèle sur les 10 premiers jours (à partir de j = 1) et on prédit la valeur à j+25 (donc 15 jours après), puis on décale la fenêtre de 10 jours à J+2, et on prédit la valeur à J+25, etc. jusqu'à j+16. Cette dernière fenêtre, à sa limite supérieure, inclut le jour pour lequel la prediction est calculée.
+
+On oberve alors les écarts entre les valeurs prédites et les valeurs observées au fur et à mesure des itérations.
+
+# Origine des données
+
+ECDC: [https://opendata.ecdc.europa.eu/covid19/casedistribution/csv](https://opendata.ecdc.europa.eu/covid19/casedistribution/csv)
+
+```{r, echo = FALSE,results='hide'}
+
+ecdc<-read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv")
+head(ecdc[ecdc$countriesAndTerritories=="France",])
+tail(ecdc[ecdc$countriesAndTerritories=="France",])
+names(ecdc)[1]<-"dateRep"
+ecdc$dateRep<-strptime(ecdc$dateRep,format="%d/%m/%Y")
+
+load("ACOMS.Rdata")
+
+```
+
+# Sélection des séries
+
+On bâti un tableau calculant la longueur des séries à ce jour, à partir du premier cas, et on identifie les séries ≥ 25 jours.
+
+```{r}
+
+
+size<-data.frame(matrix(nrow=nrow(ACOMS),ncol=2))
+names(size)<-c("country","days")
+start<-1
+for(i in 1:nrow(ACOMS)){
+# print(as.character(ACOMS$country[i]))
+pays<-ecdc[ecdc$countriesAndTerritories==as.character(ACOMS$country[i]),]
+pays<-pays[order(pays$dateRep),]
+firstcase<-which(cumsum(pays$cases)>start)[1]
+size[i,1]<-as.character(ACOMS$country[i])
+if(!is.na(firstcase)) size[i,2]<-length(cumsum(pays$cases)[firstcase:length(cumsum(pays$cases))]) else size[i,2]<-0
+}
+
+size[size[,2]>=25,]
+
+size25<-size[size[,2]>=25,]
+
+series25<-rep(list(NA),nrow(size25))
+names(series25)<-size25[,1]
+start<-1
+for(i in 1:nrow(size25)){
+pays<-ecdc[ecdc$countriesAndTerritories==as.character(size25$country[i]),]
+pays<-pays[order(pays$dateRep),]
+firstcase<-which(cumsum(pays$cases)>start)[1]
+series25[[i]]<-cumsum(pays$cases)[firstcase:length(pays$dateRep)]
+}
+
+
+
+```
+
+6 pays s'avèrent disponibles pour l'exercice
+
+```{r}
+
+plot(c(1,max(sapply(series25,length))+2),c(1,max(sapply(series25,max))),las=1,ylab="cases",xlab="days",type="n")
+
+start<-1
+for(i in 1:nrow(size25)){
+pays<-ecdc[ecdc$countriesAndTerritories==as.character(size25$country[i]),]
+pays<-pays[order(pays$dateRep),]
+firstcase<-which(cumsum(pays$cases)>start)[1]
+if(!is.na(firstcase)) {
+    x<-1:length(firstcase:length(pays$dateRep))
+    y<-cumsum(pays$cases)[firstcase:length(pays$dateRep)]
+  lines(x,y)
+  text(x=length(x),y=y[length(y)],labels=as.character(size25$country[i]),cex=1,pos=4,col="red")
+}
+}
+
+```
+
+Le moins qu'on puisse constater c'est la diversité des modes de croissance d'un pays à l'autre, et que donc l'utilisation d'un modèle unique *a priori* pour la prédiction précise des cas à plus de quelques jours est voué à l'échec.
+
+# Calcul itératif
+
+Le résultat des prédictions à J = 25 (J25, le 25ème jour) pour chaque fenêtre d'observation 1:10, 2:11, .... 16:25 est donné ci-dessous pour chaque pays, avec le r^2^ et le type de modèle sélectionné à l'itération correspondante.
+
+Ci-dessous le résultat des observations à J25
+
+```{r}
+
+obs25<-sapply(series25,function(x) x[25])
+
+# observé à j = 25
+obs25
+
+
+```
+
+... et le résultat des itérations successives.
+
+```{r}
+
+resIt<-rep(list(NA),nrow(size25))
+names(resIt)<-size25[,1]
+
+for(i in 1:nrow(size25)){
+  resIt[[i]]<-data.frame(matrix(nrow=16,ncol=3))
+  names(resIt[[i]])<-c("pred","r2","model")
+  # print(as.character(size25[i,1]));flush.console()
+  for(j in 1:16){
+    firstcase<-j
+    # cat(firstcase," ",firstcase+9,"\n")
+  datapays<-data.frame(dateN=firstcase:(firstcase+9),cas=series25[[i]][firstcase:(firstcase+9)],logcas=log(series25[[i]][firstcase:(firstcase+9)]),lldate=log(firstcase:(firstcase+9)))
+  
+  # print(series25[[i]][firstcase:(firstcase+9)])
+
+  newdata<-data.frame(dateN=25,lldate=log(25))
+  modL<-lm(cas~dateN,data=datapays)
+  modE<-lm(logcas~dateN,data=datapays)
+  modLL<-lm(logcas~lldate,data=datapays)
+  R2s<-c(summary(modL)$adj.r.squared,summary(modE)$adj.r.squared, summary(modLL)$adj.r.squared)
+  idxR<-which(R2s==min(R2s)); if (length(idxR)>1) idxR<-idxR[1]
+  
+   if(idxR==1) {
+    resIt[[i]][j,1]<-round(predict(modL,newdata=newdata),0)
+    resIt[[i]][j,2]<-round(summary(modL)$adj.r.squared,2)
+    resIt[[i]][j,3]<-"lin"
+  }
+  
+  if(idxR==2){
+    resIt[[i]][j,1]<-round(exp(predict(modE,newdata=newdata)),0)
+    resIt[[i]][j,2]<-round(summary(modE)$adj.r.squared,2)
+    resIt[[i]][j,3]<-"exp"
+  } 
+ 
+  if(idxR==3) {
+    resIt[[i]][j,1]<-round(exp(predict(modLL,newdata=newdata)),0)
+    resIt[[i]][j,2]<-round(summary(modLL)$adj.r.squared,2)
+    resIt[[i]][j,3]<-"log"
+  }
+  
+  }
+  
+}
+
+resIt
+```
+
+On obtient donc les écarts au prédiction suivants:
+
+```{r}
+
+bilan<-sapply(resIt,function(x)x[,1])
+
+bilan-rep(obs25,each=nrow(bilan))
+
+```
+
+Et si on raisonne en marge d'erreur (valeur absolue prédite/valeur observée)
+
+```{r}
+
+bilanratio<-round(abs(bilan)/rep(obs25,each=nrow(bilan)),1)
+bilanratio
+
+```
+
+On peut voir que les prédictions à 15 jours, sont complétement farfelues, que celles à 10 jours ont toutes produit des sous-estimations larges, et que même 3 jours avant, on peut avoir des erreurs grossières (voir l'Afrique du Sud, qui engage une surestimation de près de 2 (1.9), pour une fenêtre d'observation de 10 jours se terminant 3 jours avant le 25^ème^ jour).
+
+On peut matéraliser ça graphiquement:
+
+```{r}
+
+boxplot(t(bilanratio),las=1,xlab="begining day of the 10 day window",ylab="error ratio")
+
+```
+
+... et si on s'arrange pour ne pas représenter les valeurs des 4 premières fenêtres, qui "compriment" la suite:
+
+```{r}
+offset<-4
+boxplot(t(bilanratio)[,(offset+1):ncol(t(bilanratio))],las=1,xaxt="n",xlab="begining day of the 10 day window",ylab="error ratio")
+axis(1,at=1:(ncol(t(bilanratio))-offset),labels=(offset+1):ncol(t(bilanratio)))
+```
+
+
+On pourrait donc en conclure qu'une estimation à J+5 serait "en moyenne" assez correcte (ratio d'erreur proche de 1), mais avec des possibilités de surestimation importante ( x 1.9 = ~ x 2). Ce qui peut arriver par exemple dans une transition vers un plateau de pic épidémique.
+
+
+Ce que nous indique finalement ces tableaux et ce graphe c'est que, dans la phase de croissance épidémique:
+
+- les estimations de J+15 à J+10 sont farfelues
+- les estimations de J+11 à J+6 sous-estiment le nombre de cas (malgré la composante exponentielle de l'algorithme)
+- les estimations de J+5 à J+1 sont plutôt correctes avec un risque de surestimation quand l'épidémie atteint un plateau
+
+# Conclusion
+
+- les dynamiques épidémiques sont très variables d'un pays à l'autre, et de ce fait, ne peuvent être décrites par un modèle unique; chaque tentative de prédiction est dépendante du type de dynamique observé et du stade dans lequel on est dans la dynamique
+- les predictions > 10 jours sont impossibles
+- les predictions les moins incorrectes sont obtenues à 1-5 jours, mais avec encore un important risque d'erreur, notamment lors d'une transition épidémique (passage de croissance à plateau)
+- les prédictions à 10 jours sont possibles, mais, au moins dans la  phase de croissance, sous-estiment les observations jusque du simple au double. Un troisième modèle log-log pourrait peut-être améliorer les choses (mais exposerait possiblement à des surestimations à d'autres période - à voir, je regarderai)
+
+Pour le moment, les prédictions les plus fiables seront certainement faites en terme d'interprétation raisonnée, en combinant l'observation visuelle des courbes et cette approche de modélisation (ou une autre approche "modèle"), combinée à d'autres indicateurs locaux du tableau de bord épidémique. L'expérience terrain des épidémies est ici irremplacable, et aucun modèle, à l'heure actuelle ne peut *a priori* rendre compte de la diversité des situations. Bien sûr, de nombreux modèles s'ajustant au mieux aux données pourront être produits quand les séries seront complètes. Mais on sera alors là dans une position purement académique post-crise, qui n'est pas celle requise par la demande opérationnelle du présent.
+
+# Linéarisation d'un exponentielle ascendante
+
+(code caché)
+```{r, eval=FALSE}
+
+x<-1:10
+y<-1-exp(-0.5*1:10)
+
+plot(x,y,type="l",las=1)
+plot(1:10,log(1-y),type="l",las=1)
+
+```
+
