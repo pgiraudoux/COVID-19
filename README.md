@@ -1,2 +1,2 @@
 # COVID-19
-Donnees en support du groupe corona_oms_brazza
+R code en support du groupe corona_oms_brazza
