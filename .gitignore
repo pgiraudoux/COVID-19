@@ -2,3 +2,5 @@
 
 !/*.rmd
 !/*.r
+!/*.Rdata
+!/*.RData

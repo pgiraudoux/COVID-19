@@ -1,6 +1,6 @@
 ---
-title: "Indications sur l'interprétation des éléments du tableau de bord en constitution"
-author: "PG"
+title: "Indications sur l'interprétation des éléments (en constitution)   \ndu tableau de bord"
+author: "PG" 
 date: "`r format(Sys.time(), '%d %B %Y %H:%M')`"
 output: word_document
 ---
@@ -14,4 +14,28 @@ knitr::opts_chunk$set(echo=FALSE)
 ```
 
 
-# Principe du modèle
+Maintenant que quelques routines commencent à fonctionner et qu'on voit un peu mieux où on va, quelques réflexions ici sur l'usage des indicateurs fournis
+
+# Prévisions à 7 jours
+
+Elles sont basées sur l'observation d'une fenêtre de 10 jours incluant le dernier jour de la série temporelle. Tant que la croissance du nombre de cas rapportés est linéaire ou exponentielle, pas de problème, la prévision est probablement fiable, *sous réserve que rien ne change dans le système les 7 jours suivants*. Quand maintenant le pic de rapportage sera atteint (il peut y a voir plusieurs raisons à celà: atteinte du pic épidémique, par exemple, mais aussi saturation hospitalière qui ne pourrait plus accueillir, etc.), alors on aura un décrochage progressif entre la prévision et l'observation. Ca peut d'ailleurs être une mesure du pic. Je réfléchis pour le moment à quel modèle ajouter pour rendre compte de ce passage.  Pour le moment les conseils sont les suivants:
+
+- toujours examiner, pays par pays, les graphes de la dynamique des cas rapportés au cours du temps. Un événement dans les 10 derniers jours peut "peser" dans la prédiction, et même dans les 2-3 semaines avant, compte tenu de l'inerte due à l'incubation/développement de COVID-19. Il faut donc s'assurer que c'est OK de ce point de vue, et garder un regard critique;
+
+- avoir en tête qu'un changement rapide ne sera pas prévisible, car on lisse les choses sur les 10 jours précédents, et on calcule "comme si les choses allaient continuer ainsi..."
+
+- toujours comparer le nombre de cas au jour J et celui  à J+7. Passer de 1 cas à 100 cas,  n'est pas la même chose que de 90 cas à 100 cas. Je vais d'ailleurs ajouter une colonne calculant le ratio $J/(J+7)$ dans le tableau des rapports journaliers
+
+# Typologie et classement
+
+Pour résumer on a deux types de tableaux de classement possibles:
+
+- ordination/classement **basé sur un état journalier**: dans chaque cellule du tableau 'pays (ligne) x jour (colonne)' on a le cumul du nombre de cas rapportés $(n_t)$. 
+
+- ordination/classement **basé sur le changement d'état d'un jour à l'autre** (la dynamique): dans chaque cellule du tableau, on a $ln(n_t)-ln(n_{t-1})$ (une façon commode pour le calcul de travailler sur $n_t/n_{t-1}$).
+
+Les deux approches sont respectables, et observent les choses sous des angles différents. Si elles sont concordantes, parfait, ça évite les états d'âme, mais si elles ne le sont pas on ouvre des dilemmes.
+
+Ajouter à celà qu'un classement dépend beaucoup de l'algorithme choisi. Là aussi, si une variété d'algorithme donne les mêmes résultats, parfait, sinon dilemme.
+
+En tout état de cause, ces ordinations/classements ne sont que des aides à la réflexion, et le meilleur choix sera fait en intégrant le flair et l'expérience de terrain de l'agent qui l'utilise, agent qui lui même doit être modeste et prudent, et garder un regard critique.
