@@ -9,21 +9,33 @@ names(ecdc)[1]<-"dateRep"
 ecdc$dateRep<-strptime(ecdc$dateRep,format="%d/%m/%Y")
 
 
-totafr<-aggregate(ecdc$cases,by=list(date=as.character(ecdc$dateRep)),sum)
 
+ecdcaf<-ecdc[ecdc$countriesAndTerritories%in%ACOMS[,1],]
+
+
+
+
+totafr<-aggregate(ecdcaf$cases,by=list(date=as.character(ecdcaf$dateRep)),sum)
+
+sum(totafr[,2])
+
+par(mar=c(5.1,5.1,4.1,2.1))
 plot(strptime(totafr[,1],format="%Y-%m-%d"),cumsum(totafr[,2]),type="l",las=1,ylab="",xlab="temps")
 
 plot(1:length(totafr[,2]),cumsum(totafr[,2]),las=1,ylab="",xlab="temps")
 
-mydata<-data.frame(time=80:length(totafr[,2]), cas=cumsum(totafr[80:length(totafr[,2]),2]))
+length(85:length(totafr[,2]))
 
-lm(cas~time,data=mydata)
+mydata<-data.frame(time=85:length(totafr[,2]), cas=cumsum(totafr[85:length(totafr[,2]),2]))
+
+modc<-lm(cas~time,data=mydata)
 
 
-plot(cas~time,data=mydata)
-abline(lm(cas~time,data=mydata))
+plot(cas~time,data=mydata,las=1)
+abline(modec)
 
-sum(totafr[,2])
+coef(modc)[2]
+coef(modc)[2]*4
 
 
 # write.delim(data.frame(country=unique(ecdc$countriesAndTerritories)),"Countries.txt")

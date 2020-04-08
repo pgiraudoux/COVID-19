@@ -1,0 +1,17 @@
+---
+title: "Indications sur l'interprétation des éléments du tableau de bord en constitution"
+author: "PG"
+date: "`r format(Sys.time(), '%d %B %Y %H:%M')`"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache=TRUE)
+knitr::opts_chunk$set(fig.height=8)
+knitr::opts_chunk$set(fig.width=8)
+knitr::opts_chunk$set(echo=FALSE)
+```
+
+
+# Principe du modèle
