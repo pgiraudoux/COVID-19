@@ -1,0 +1,144 @@
+---
+title: "Essais de classement de la dynamique des cas COVID-19"
+author: "PG"
+date: "`r format(Sys.time(), '%d %B %Y %H:%M')`"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache=TRUE)
+knitr::opts_chunk$set(fig.height=10)
+knitr::opts_chunk$set(fig.width=10)
+knitr::opts_chunk$set(echo=FALSE)
+```
+
+
+# Principe
+
+On compare la dissimilarité des séries temporelles en les alignant toutes à partir du 1^er^cas observé. On part donc d'un tableau pays (lignes) x jours (colonnes) chaque cellule contenant le nombre de cas rapporté. Pour les détails voir fichier "Report200407_classement.docx".
+
+Ici, les données sont standardisées, c'est à dire que chaque série est divisée par sa valeur maximum (donc elles ont toutes la même amplitude maximale = 1), et on considère la transformation log $ln(n_t)/ln(n_{t-1})$ (Bjornstad et al. 1995), classiquement utilisée en dynamique de population (on met l'accent ainsi sur les différences d'une année sur l'autre et pas sur les valeurs instantanées chaque année). 
+
+
+# Origine des données
+
+ECDC: [https://opendata.ecdc.europa.eu/covid19/casedistribution/csv](https://opendata.ecdc.europa.eu/covid19/casedistribution/csv)
+
+```{r, echo = FALSE,results='hide', message=FALSE}
+
+library(pgirmess)
+library(ade4)
+library(vegan)
+
+ecdc<-read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv")
+head(ecdc[ecdc$countriesAndTerritories=="France",])
+tail(ecdc[ecdc$countriesAndTerritories=="France",])
+names(ecdc)[1]<-"dateRep"
+ecdc$dateRep<-strptime(ecdc$dateRep,format="%d/%m/%Y")
+
+load("series10.Rdata")
+
+```
+
+# Sélection des séries sur 15 jours
+
+## Sélection
+
+On sélectionne des séries de 15 jours à partir du 1^er^ cas.
+
+```{r}
+
+idx15j<-which(sapply(series10,length)>=20)
+mat15j<-t(sapply(series10[idx15j],function(x) x[1:15]))
+
+mat15j.tot<-decostand(mat15j,method="total", margin=1)
+mat15j.tot<-log(mat15j.tot)
+
+mat15j.dyn<-matrix(ncol=ncol(mat15j.tot)-1,nrow=nrow(mat15j.tot))
+for(i in 2:ncol(mat15j.tot)){
+  mat15j.dyn[,i-1]<-mat15j.tot[,i]-mat15j.tot[,i-1]
+}
+
+rownames(mat15j.dyn)<-rownames(mat15j.tot)
+
+```
+
+## Analyse en composantes principales
+
+L'idée est ici de distribuer les pays dans un espace qui permet d'interpréter les proximité en terme de ressemblance. La nature de la mesure, qui n'est plus un nombre de cas, oblige à changer de technique et à utiliser une PCA. L'interprétation des proximités est différente de celle de l'analyse des correspondances. Ici, c'est la répartion angulaire autour d'un cercle dit des corrélations qui est  à considérer.
+
+```{r}
+
+coa15j.dyn<-dudi.pca(mat15j.dyn,scannf=FALSE,nf=2)
+
+plot(coa15j.dyn$li[,1:2],type="n",asp=1)
+abline(v=0,h=0,col="grey",lty=2)
+polygon(polycirc(1,pts=c(0,0)),border="grey",lty=2)
+
+text(coa15j.dyn$li[,1:2],labels=rownames(mat15j),cex=0.8)
+
+```
+
+
+## Classification hiérarchique
+
+
+```{r}
+
+plot(hclust(dist(coa15j.dyn$li)))
+
+
+```
+
+# Sélection des séries sur 20 jours
+
+Bien sûr sur 20 jours on diminue le nombre de pays qui peuvent être inclus...
+
+## Sélection
+
+On sélectionne des séries de 20 jours à partir du 1^er^ cas.
+
+
+```{r}
+
+idx20j<-which(sapply(series10,length)>=20)
+mat20j<-t(sapply(series10[idx20j],function(x) x[1:20]))
+
+
+mat20j.tot<-decostand(mat20j,method="total", margin=1)
+mat20j.tot<-log(mat20j.tot)
+
+mat20j.dyn<-matrix(ncol=ncol(mat20j.tot)-1,nrow=nrow(mat20j.tot))
+for(i in 2:ncol(mat20j.tot)){
+  mat20j.dyn[,i-1]<-mat20j.tot[,i]-mat20j.tot[,i-1]
+}
+
+rownames(mat20j.dyn)<-rownames(mat20j.tot)
+
+
+```
+
+## Analyse en composantes principales
+
+
+```{r}
+
+coa20j.dyn<-dudi.pca(mat20j.dyn,scannf=FALSE,nf=2)
+
+plot(coa20j.dyn$li[,1:2],type="n",asp=1)
+abline(v=0,h=0,col="grey",lty=2)
+polygon(polycirc(1,pts=c(0,0)),border="grey",lty=2)
+text(coa20j.dyn$li[,1:2],labels=rownames(mat20j.dyn),cex=0.8)
+
+```
+
+
+## Classification hiérarchique
+
+
+```{r}
+
+plot(hclust(dist(coa20j.dyn$li)))
+
+```

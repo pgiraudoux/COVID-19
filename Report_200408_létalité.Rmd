@@ -1,0 +1,86 @@
+---
+title: "Létalité COVID-19"
+author: "PG"
+date: "`r format(Sys.time(), '%d %B %Y %H:%M')`"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache=TRUE)
+knitr::opts_chunk$set(fig.height=10)
+knitr::opts_chunk$set(fig.width=10)
+knitr::opts_chunk$set(echo=FALSE)
+```
+
+
+# Principe
+
+On examine ici l'évolution des létalités par pays
+
+
+# Origine des données
+
+ECDC: [https://opendata.ecdc.europa.eu/covid19/casedistribution/csv](https://opendata.ecdc.europa.eu/covid19/casedistribution/csv)
+
+
+
+
+```{r, echo = FALSE,results='hide', message=FALSE}
+
+library(pgirmess)
+
+ecdc<-read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv")
+head(ecdc[ecdc$countriesAndTerritories=="France",])
+tail(ecdc[ecdc$countriesAndTerritories=="France",])
+names(ecdc)[1]<-"dateRep"
+ecdc$dateRep<-strptime(ecdc$dateRep,format="%d/%m/%Y")
+
+load("ACOMS.Rdata")
+
+dateJ<-unique(ecdc$dateRep)[1]
+
+```
+
+# Résultats
+
+```{r, results='hide', warning=FALSE}
+daydir<-paste0("./lethality_",as.character(dateJ))
+dir.create(daydir)
+
+letal<-data.frame(matrix(ncol=4,nrow=nrow(ACOMS)))
+names(letal)<-c("country","cases","deaths","letality")
+
+for(i in 1:nrow(ACOMS)){
+  print(as.character(ACOMS[i,1]));flush.console()
+  pays<-ecdc[ecdc$countriesAndTerritories==as.character(ACOMS[i,1]),]
+  pays<-pays[order(pays$dateRep),]
+  firstcase<-which(pays$cases>=1)[1]
+  datapays<-data.frame(date=pays$dateRep[firstcase:length(pays$dateRep)],cas=cumsum(pays$cases)[firstcase:length(pays$dateRep)],let=cumsum(pays$deaths)[firstcase:length(pays$dateRep)])
+  
+  letal[i,1]<-as.character(ACOMS[i,1])
+  letal[i,2]<-sum(pays$cases)
+  letal[i,3]<-sum(pays$deaths)
+  letal[i,4]<-round(letal[i,3]/letal[i,2],3)
+  
+   jpeg(paste0(daydir,"/",as.character(ACOMS[i,1]),"_letal.jpg"))
+  plot(pays$dateRep[firstcase:length(pays$dateRep)],cumsum(pays$deaths)[firstcase:length(pays$dateRep)]/cumsum(pays$cases)[firstcase:length(pays$dateRep)],las=1,ylab="Letality",xlab="Time",main=as.character(ACOMS[i,1]),type="l")
+  dev.off()
+  
+}
+
+write.delim(letal,paste0(daydir,"/","0lethality.txt"))
+
+zip(paste0(daydir,".zip"),daydir)
+
+```
+
+Les graphes des dynamiques par pays sont stockés dans le fichier '`r substring(paste0(daydir,".zip"),3,100)`'
+
+```{r}
+
+letal
+
+
+```
+
