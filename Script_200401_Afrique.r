@@ -8,6 +8,24 @@ tail(ecdc[ecdc$countriesAndTerritories=="France",])
 names(ecdc)[1]<-"dateRep"
 ecdc$dateRep<-strptime(ecdc$dateRep,format="%d/%m/%Y")
 
+
+totafr<-aggregate(ecdc$cases,by=list(date=as.character(ecdc$dateRep)),sum)
+
+plot(strptime(totafr[,1],format="%Y-%m-%d"),cumsum(totafr[,2]),type="l",las=1,ylab="",xlab="temps")
+
+plot(1:length(totafr[,2]),cumsum(totafr[,2]),las=1,ylab="",xlab="temps")
+
+mydata<-data.frame(time=80:length(totafr[,2]), cas=cumsum(totafr[80:length(totafr[,2]),2]))
+
+lm(cas~time,data=mydata)
+
+
+plot(cas~time,data=mydata)
+abline(lm(cas~time,data=mydata))
+
+sum(totafr[,2])
+
+
 # write.delim(data.frame(country=unique(ecdc$countriesAndTerritories)),"Countries.txt")
 
 ### exemple 
