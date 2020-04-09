@@ -1,0 +1,271 @@
+---
+title: "Essai de typologie de la dynamique des cas COVID-19"
+author: "PG & FG"
+date: "`r format(Sys.time(), '%d %B %Y %H:%M')`"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache = TRUE)
+knitr::opts_chunk$set(fig.height = 8)
+knitr::opts_chunk$set(fig.width = 10)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+# Principe
+
+On compare la dissimilarité des séries temporelles en les alignant toutes à partir du 1^er^ cas observé. On part donc d'un tableau pays (lignes) x jours (colonnes), chaque cellule contenant le nombre de cas rapporté.
+
+Une multitude de méthodes et d'approches existent pour ordonner ce genre de données (analyse factorielle des correspondances, etc.), ou pour les classer (classifications hiérarchiques, etc.), chacune avec un nombre impressionnant de variantes. 
+
+# Origine des données
+
+ECDC: [https://opendata.ecdc.europa.eu/covid19/casedistribution/csv](https://opendata.ecdc.europa.eu/covid19/casedistribution/csv)
+
+```{r, echo = FALSE, results = 'hide', message = FALSE}
+
+library(pgirmess)
+library(ade4)
+library(FactoMineR)
+library(factoextra)
+
+ecdc <- read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv")
+ecdc$dateRep <- strptime(ecdc$dateRep, format = "%d/%m/%Y")
+dateJ <- unique(ecdc$dateRep)[1]
+
+load("ACOMS.Rdata")
+size <- data.frame(matrix(nrow = nrow(ACOMS), ncol = 2))
+names(size) <- c("country", "days")
+start <- 1
+for (i in 1:nrow(ACOMS)) {
+  pays <-
+    ecdc[ecdc$countriesAndTerritories == as.character(ACOMS$country[i]), ]
+  pays <- pays[order(pays$dateRep), ]
+  firstcase <- which(cumsum(pays$cases) > start)[1]
+  size[i, 1] <- as.character(ACOMS$country[i])
+  if (!is.na(firstcase))
+    size[i, 2] <-
+    length(cumsum(pays$cases)[firstcase:length(cumsum(pays$cases))])
+  else
+    size[i, 2] <- 0
+}
+size10 <- size[size[, 2] >= 10, ]
+series10 <- rep(list(NA), nrow(size10))
+names(series10) <- size10[, 1]
+start <- 1
+for (i in 1:nrow(size10)) {
+  pays <-
+    ecdc[ecdc$countriesAndTerritories == as.character(size10$country[i]), ]
+  pays <- pays[order(pays$dateRep), ]
+  firstcase <- which(cumsum(pays$cases) > start)[1]
+  series10[[i]] <- cumsum(pays$cases)[firstcase:length(pays$dateRep)]
+}
+
+
+```
+
+# Séries temporelles à partir du premier cas
+
+Il s'agit ici des séries temporelles non tronquées pour `r length(series10)` pays africains.
+
+```{r}
+
+plot(
+  c(1, max(sapply(series10, length)) + 5),
+  c(1, log10(max(sapply(series10, max)))),
+  las = 1,
+  ylab = "log10(cases)",
+  xlab = "days since 1th case",
+  type = "n"
+)
+start <- 1
+for (i in 1:nrow(size10)) {
+  pays <-
+    ecdc[ecdc$countriesAndTerritories == as.character(size10$country[i]), ]
+  pays <- pays[order(pays$dateRep), ]
+  firstcase <- which(cumsum(pays$cases) > start)[1]
+  if (!is.na(firstcase)) {
+    x <- 1:length(firstcase:length(pays$dateRep))
+    y <- log10(cumsum(pays$cases)[firstcase:length(pays$dateRep)])
+    lines(x, y)
+    text(
+      x = length(x),
+      y = y[length(y)],
+      labels = as.character(size10$country[i]),
+      cex = 0.8,
+      pos = 4,
+      col = "red"
+    )
+  }
+}
+
+```
+
+# Sélection des séries sur 20 jours
+
+
+
+## Sélection
+
+On sélectionne des séries de 20 jours à partir du 1^er^ cas. 
+
+
+```{r}
+
+idx20j <- which(sapply(series10, length) >= 20)
+mat20j <- t(sapply(series10[idx20j], function(x) x[1:20]))
+df20j <- data.frame(mat20j)
+names(df20j) <- 1:20
+
+```
+
+Sur les `r length(series10)` pays, `r nrow(df20j)` ont été observés pendant 20 jours ou plus.
+
+## Ordination et classement basé sur les états journaliers (le nombre cumulé de cas)
+
+
+### Analyse factorielle des correspondances
+
+L'idée est ici de distibuer les pays dans un espace qui permet d'interpréter les proximité (ici la distance du Xi2) en terme de ressemblance: plus les pays sont proches, plus leur dynamique à partir du 1er cas se ressemble.
+Les pays sont les points bleus et les jours les points rouges.
+
+```{r}
+
+ca20 <- CA(df20j)
+
+```
+
+### Classification hiérarchique
+
+Cette technique est utilisée pour introduire des discontinuités (un groupement des pays) dans l'espace ordonné ci-dessus. Attention, les interprétations se font en fonction du niveau de fusion en hauteur sur l'arbre (dendrogramme), pas par la proximité en bas de l'arbre. Penser l'arbre comme un mobile dont on peut faire tourner les branches au niveau des noeuds.
+
+```{r}
+
+rsc <- ca20$row$coord[, 1:3]
+res <- hcut(rsc, k = 5)
+fviz_dend(res, rect = TRUE, labels_track_height = 1.25)
+
+```
+
+Après examen du dendrogramme, on a choisi de couper celui-ci horizontalement pour former 5 groupes, même si on observe une nette séparation entre deux groupes principaux (ici avec la méthode de Ward). La typologie devra pouvoir être interprétée en fonction d'autres variables explicatives. 
+
+## Ordination et classement basé sur les dynamiques journalières ($ln(n_t)-ln(n_{t-1}$)
+
+
+
+```{r}
+
+df20jdyn<-matrix(ncol=ncol(df20j)-1,nrow=nrow(df20j))
+for(i in 2:ncol(df20j)){
+  df20jdyn[,i-1]<-log(df20j[,i])-log(df20j[,i-1])
+}
+rownames(df20jdyn)<-rownames(df20j)
+
+```
+
+
+
+
+### Analyse en composantes principales
+
+L’idée est ici de distibuer les pays dans un espace qui permet d’interpréter les proximité en terme de ressemblance. La nature de la mesure, qui n’est plus un nombre de cas, oblige à changer de technique et à utiliser une PCA. L’interprétation des proximités est différente de celle de l’analyse des correspondances. Ici, c’est la répartion angulaire autour d’un cercle dit des corrélations qui est à considérer.
+
+```{r}
+
+pca20 <- PCA(df20jdyn, graph=FALSE)
+
+plot(pca20$ind$coord[,1:2],asp=1,type="n")
+abline(v=0,h=0,col="grey",lty=2)
+polygon(polycirc(1,pts=c(0,0)),border="grey",lty=2)
+
+text(pca20$ind$coord[,1:2],labels=rownames(pca20$ind$coord),cex=0.8)
+
+```
+
+### Classification hiérarchique
+
+Cette technique est utilisée pour introduire des discontinuités (un groupement des pays) dans l'espace ordonné ci-dessus. Attention, les interprétations se font en fonction du niveau de fusion en hauteur sur l'arbre (dendrogramme), pas par la proximité en bas de l'arbre. Par exemple le Congo et le Maroc sont éloignés parce qu'ils sont sur des branches séparées à un haut niveau. Par contre l'Egypte et le Sénégal sont proches, parce que situés sur deux branches séparées à un bas niveau. Penser l'arbre comme un mobile dont on peut faire tourner les branches au niveau des noeuds.
+
+```{r}
+
+rsc2 <- pca20$ind$coord[,1:3]
+res2 <- hcut(rsc2, k = 5)
+fviz_dend(res2, rect = TRUE, labels_track_height = 1.25)
+
+```
+
+Après examen du dendrogramme, on a choisi de couper celui-ci horizontalement pour former 5 groupes, même si on observe une nette séparation entre trois groupes principaux (ici avec la méthode de Ward). La typologie devra pouvoir être interprétée en fonction d'autres variables explicatives. 
+
+
+
+# Comparaison des classements
+
+## 5 groupes
+
+```{r}
+comp1<-cbind(etat=res$cluster,dyn=res2$cluster)
+comp1
+
+sim1<-comp1[comp1[,1]==comp1[,2],]
+
+```
+
+Sur `r nrow(comp1)` pays, `r nrow(sim1)` (`r round(nrow(sim1)/nrow(comp1)*100,0)`%) sont dans le même cluster (groupe)
+
+Que se passe-t-il si on réduit le nombre de groupes ?
+
+## 4 groupes
+
+```{r}
+
+res <- hcut(rsc, k = 4)
+res2 <- hcut(rsc2, k = 4)
+
+comp1<-cbind(etat=res$cluster,dyn=res2$cluster)
+sim1<-comp1[comp1[,1]==comp1[,2],]
+
+
+```
+
+Sur `r nrow(comp1)` pays, `r nrow(sim1)` (`r round(nrow(sim1)/nrow(comp1)*100,0)`%) sont dans le même cluster (groupe)
+
+## 3 groupes
+
+```{r}
+
+res <- hcut(rsc, k = 3)
+res2 <- hcut(rsc2, k = 3)
+
+comp1<-cbind(etat=res$cluster,dyn=res2$cluster)
+sim1<-comp1[comp1[,1]==comp1[,2],]
+
+
+```
+
+
+Sur `r nrow(comp1)` pays, `r nrow(sim1)` (`r round(nrow(sim1)/nrow(comp1)*100,0)`%) sont dans le même cluster (groupe)
+
+
+## 2 groupes
+
+```{r}
+
+res <- hcut(rsc, k = 2)
+res2 <- hcut(rsc2, k = 2)
+
+comp1<-cbind(etat=res$cluster,dyn=res2$cluster)
+sim1<-comp1[comp1[,1]==comp1[,2],]
+
+
+```
+
+
+Sur `r nrow(comp1)` pays, `r nrow(sim1)` (`r round(nrow(sim1)/nrow(comp1)*100,0)`%) sont dans le même cluster (groupe)
+
+## Conclusion
+
+Même avec seulement deux groupes certains pays se retrouvent encore dans des groupes différents selon le classement.
+
+Ces chiffres doivent convaincre le lecteur que le classement de dynamiques complexes dépend en grande partie des choix faits au départ. Ici "état" versus "dynamiques". On aurait certainement d'autres classements si on avait normé les données à 1 (cf fichier 'Report_200408_classement.docx'). Il importe donc de définir au départ ce qu'on considère important dans les critères de classement (état, dynamique, amplitude, etc.) afin de choisir au départ le tableau de données le plus adapté. Une autre option est de tout essayer et de comparer les résultats, mais l'expérience montre qu'alors il n'y a guère de moyen de trancher objectivement entre les différents résultats obtenus.
