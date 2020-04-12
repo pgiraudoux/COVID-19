@@ -1,0 +1,293 @@
+---
+title: "Corrélations entre COVID-19 et variables  \npopulationnelles et environnementales"
+author: "PG"
+date: "`r format(Sys.time(), '%d %B %Y %H:%M')`"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache=TRUE)
+knitr::opts_chunk$set(fig.height=8)
+knitr::opts_chunk$set(fig.width=8)
+knitr::opts_chunk$set(echo=FALSE)
+```
+
+```{r, message= FALSE}
+library(pgirmess)
+library(FactoMineR)
+library(factoextra)
+library(wordcloud)
+library(gamlss)
+```
+
+
+# Nature et origine des données "environnementales"
+
+Variable|Contenu
+--------|-------
+geoId|ISO 3166-1 alpha-2
+countryterritoryCode|ISO 3166-1 alpha-3
+countriesAndTerritories|Nom
+Capitale|Capitale
+OMSAfrique|Region OMS Afrique
+popData2018|Population
+Densite|Densité de population (habitants par km^2^) 
+AltCapitale|Altitude de la capitale (m)
+LatCapitale|Latitude de la capitale (° décimaux)
+LatCentroid|Latitude du centroïde du pays (° décimaux)
+AltMoy|Altitude moyenne du pays
+Agemed|Age médian de la population
+DateConf|Date de confinement
+PIB|PIB par habitant
+PopUrban2018|Population urbaine (% de la population totale)
+AirTraffic|Densité de trafic aérien (nombre de passagers par habitant en 2015) 
+WaterAccessibleOnPremises|% accessible dans les locaux
+PipedWater|% eau courante
+NonPipedWater|% pas d'eau courante
+LatrinesAndOther|% disponibilité de latrines ou autre
+SepticTanks|% fosse septique
+SewerConnections|% connection aux égouts
+HygieneBasic|% basique
+LimitedHygiene|% limitée (sans savon ou eau)
+NoFacilityHygiene|% pas d'équipement
+
+
+Sources: 
+
+* popData2018: [https://opendata.ecdc.europa.eu/covid19/casedistribution/csv](https://opendata.ecdc.europa.eu/covid19/casedistribution/csv)
+
+* population [https://planificateur.a-contresens.net](https://planificateur.a-contresens.net)
+
+* Nbre lit/med/inf [https://donnees.banquemondiale.org/indicator/SH.MED.NUMW.P3](https://donnees.banquemondiale.org/indicator/SH.MED.NUMW.P3)
+
+* UNICEF. Joint Monitoring Programme for Water Supply, Sanitation and Hygiene (2019). Estimates on the use of water, sanitation and hygiene by country (2000-2017). [https://www.washdata.org](https://www.washdata.org)
+
+
+## Localisation des fichiers 
+
+ECDC: [https://opendata.ecdc.europa.eu/covid19/casedistribution/csv](https://opendata.ecdc.europa.eu/covid19/casedistribution/csv)
+
+Environnement: file///C:/Users/pgiraudo2/Documents/COVID-19/Tableau_environnnement/Copie de AfricanCountries_09042020.txt
+
+```{r, echo = FALSE,results='hide'}
+
+ecdc<-read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv")
+head(ecdc[ecdc$countriesAndTerritories=="France",])
+tail(ecdc[ecdc$countriesAndTerritories=="France",])
+names(ecdc)[1]<-"dateRep"
+ecdc$dateRep<-strptime(ecdc$dateRep,format="%d/%m/%Y")
+
+load("ACOMS.Rdata")
+load("ECDCmap.Rdata")
+
+envir<-read.delim("./Tableau_environnnement/Copie de AfricanCountries_09042020.txt")
+
+dateJ<-unique(ecdc$dateRep)[1]
+
+```
+
+# Structure du jeu de données
+
+La variable "Altitude moyenne du pays" et certaines variables pour certains pays n'ont pas pu être renseignées; ces variables et pays ont donc été exclus de l'analyse.
+
+## PCA
+
+Compte-tenu de l'échelle de mesure, généralement métrique ou d'intervalle, on procède à une analyse en composante principale pour visualiser le degré de corrélation entre les variables globalement.
+
+```{r, results=FALSE}
+
+mat<-envir[,c(6:8,10,12:25)]
+mat[,6]<-ifelse(mat[,6]=="",0,1)
+row.names(mat)<-envir[,3]
+mat<-na.omit(mat)
+PCAenv<-PCA(mat)
+```
+
+Rien de très surprenant ici: l'axe 1 oppose les pays à PIB/habitant plus élevé, à population plus urbaine, possédant l'eau potable, et d'âge median plus élevé, aux autres... On constate la position à part des Seychelles et de l'Ile Maurice, comme les pays du Maghreb en clusters, plutôt dans la partie droite de l'axe 1 (les + riches, ou les moins pauvres, comme on veut, tout dépend du référentiel).
+
+
+## CAH (liens complets)
+
+```{r, results=FALSE}
+rsc <- PCAenv$ind$coord[, 1:3]
+res <- hcut(rsc, k = 5)
+fviz_dend(res, rect = TRUE, labels_track_height = 1.25)
+
+```
+
+Le classement introduit des discontinuités dans la description ci-dessus et précise les clusters.
+
+
+# Les variables réponse
+
+
+Elles peuvent être multiples (voir rapports sur les classements). Dans un premier temps on va regarder la prévalence à J+20 après le premier cas (comparer des prévalences à des stades épidémiques différents répondrait à une autre question complexe à formuler combinant la latence et la dynamique épidémique)
+
+
+```{r}
+size <- data.frame(matrix(nrow = nrow(ACOMS), ncol = 2))
+names(size) <- c("country", "days")
+start <- 1
+for (i in 1:nrow(ACOMS)) {
+  pays <- ecdc[ecdc$countriesAndTerritories == as.character(ACOMS$country[i]), ]
+  pays <- pays[order(pays$dateRep), ]
+  firstcase <- which(cumsum(pays$cases) >= start)[1]
+  size[i, 1] <- as.character(ACOMS$country[i])
+  if (!is.na(firstcase))
+    size[i, 2] <- length(cumsum(pays$cases)[firstcase:length(cumsum(pays$cases))])
+  else
+    size[i, 2] <- 0
+}
+
+
+size20 <- size[size[, 2] >= 20, ]
+series20 <- rep(list(NA), nrow(size20))
+names(series20) <- size20[, 1]
+start <- 1
+for (i in 1:nrow(size20)) {
+  pays <- ecdc[ecdc$countriesAndTerritories == as.character(size20$country[i]), ]
+  pays <- pays[order(pays$dateRep), ]
+  firstcase <- which(cumsum(pays$cases) >= start)[1]
+  series20[[i]] <- cumsum(pays$cases)[firstcase:length(pays$cases)]
+}
+
+cas20<-sapply(series20,function(x) x[20])
+cas20<-data.frame(cas=cas20)
+
+df20<-na.omit(data.frame(cas20,mat[match(row.names(cas20),rownames(mat)),]))
+
+
+```
+
+
+Les pays suivants, qui n'ont pas de séries assez longues sont exclus de l'analyse: `r rownames(mat)[!rownames(mat)%in%row.names(cas20)]`.
+
+Le nombre de variables possibles étant très élevé, on sélectionnera un petit  nombre de variables plus ou moins indépendantes pour mesurer la relation entre la prévalence à 20 jours et les variables environnementales.
+
+## Examen visuel sur l'ordination en PCA
+
+La taille des cercles est proportionnelle à la racine carrée des prévalence (~la surface du cercle est proportionnelle).
+```{r}
+
+pv20<-df20$cas/df20$popData2018*1e5
+names(pv20)<-rownames(df20)
+
+pv20PCA<-data.frame(pv20,PCAenv$ind$coord[match(names(pv20),row.names(PCAenv$ind$coord)),])
+
+
+plot(pv20PCA[,2],pv20PCA[,3],type="n",asp=1)
+abline(v=0,h=0,col="grey",lty=2)
+points(pv20PCA[,2],pv20PCA[,3],cex=sqrt(pv20PCA[,1]/max(pv20PCA)*100))
+# text(pv20PCA[,2],pv20PCA[,3],labels=rownames(pv20PCA),cex=0.7,pos=1)
+textplot(pv20PCA[,2],pv20PCA[,3],words=rownames(pv20PCA),cex=0.8,new=FALSE)
+
+```
+
+Mauritius et Seychelles correspondent à des iles. On zoome sur les autres:
+
+```{r, fig.width=7, fig.height=7 }
+incl<-!(rownames(pv20PCA)=="Mauritius" | rownames(pv20PCA)=="Seychelles")
+
+
+plot(pv20PCA[incl,2],pv20PCA[incl,3],type="n",asp=1)
+abline(v=0,h=0,col="grey",lty=2)
+points(pv20PCA[incl,2],pv20PCA[incl,3],cex=sqrt(pv20PCA[incl,1]/max(pv20PCA)*200))
+
+plot(pv20PCA[incl,2],pv20PCA[incl,3],type="n",asp=1)
+abline(v=0,h=0,col="grey",lty=2)
+textplot(pv20PCA[incl,2],pv20PCA[incl,3],words=rownames(pv20PCA)[incl],cex=1,new=FALSE)
+
+
+```
+
+Rien de tout à fait clair. Peut-être un gradient haut-gauche > bas - droite.
+
+# Y-a-t-il des variables populationnelles ou environnementales qui pourraient expliquer les différences de prévalence observées?
+
+
+Parmi le grand nombre de variables collectées, on retient quelques variables représentatives de la structure des données, à savoir: l'âge médian, la densité, la latitude. On compare trois modèles: négatif binomial type I, type II et Poisson.
+
+
+```{r, results=FALSE, message=FALSE, echo=TRUE}
+
+modNBI<-gamlss(cas~offset(log(popData2018))+Agemed*Densite*LatCentroid,family=NBI,data=df20)
+modNBII<-gamlss(cas~offset(log(popData2018))+Agemed*Densite*LatCentroid,family=NBII,data=df20)
+modPO<-gamlss(cas~offset(log(popData2018))+Agemed*Densite*LatCentroid,family=PO,data=df20)
+
+```
+
+```{r, echo=TRUE}
+AIC(modNBI,modNBII,modPO)
+
+
+```
+
+Le modèle négatif binomial type I semble le plus acceptable. 
+
+
+
+```{r, echo=TRUE}
+plot(modNBI)
+summary(modNBI)
+```
+
+
+Il en ressort que l'âge médian, la latitude et l'interaction age:latitude seraient statistiquement significatives. On simplifie le modèle sur cette base:
+
+
+```{r, results=FALSE, message=FALSE, echo=TRUE}
+
+modNBIs<-gamlss(cas~offset(log(popData2018))+Agemed*LatCentroid,family=NBI,data=df20)
+
+```
+
+
+```{r, message=FALSE, echo=TRUE}
+# plot(modNBIs)
+summary(modNBIs)
+
+```
+
+On vérifie la robustesse de ces corrélation entre excluant Mauritius et Seychelles (qui pourraient, par leur singularité, tirer la régression)
+
+
+```{r, message=FALSE, echo=TRUE}
+incl<-!(rownames(df20)=="Mauritius" | rownames(df20)=="Seychelles")
+modNBIs2<-gamlss(cas~offset(log(popData2018))+Agemed*LatCentroid,family=NBI,data=df20[incl,])
+# plot(modNBIs2)
+summary(modNBIs2)
+exp(coef(modNBIs))
+```
+
+Le modèle reste valide.
+
+On peut s'interroger sur ce que représente l'effet de la latitude: opposition hémisphère nord/hémisphère sud ou écart à l'équateur. Pour le vérifier, on bâtit un modèle ou la latitude est exprimée en valeur absolue (donc représente alors un écart à l'équateur)
+
+```{r}
+modNBIlat<-gamlss(cas~offset(log(popData2018))+Agemed*Densite*I(abs(LatCentroid)),family=NBI,data=df20)
+summary(modNBIlat)
+```
+
+Plus rien de significatif.
+
+```{r, message=FALSE, echo=TRUE}
+modNBIlat<-gamlss(cas~offset(log(popData2018))+Agemed*Densite,family=NBI,data=df20)
+summary(modNBIlat)
+```
+
+
+```{r, message=FALSE, echo=TRUE}
+modNBIlat<-gamlss(cas~offset(log(popData2018))+Agemed,family=NBI,data=df20)
+summary(modNBIlat)
+```
+
+L'âge médian redevient alors hautement significatif.
+
+# Conclusion
+
+On peut donc raisonnablement en conclure que le risk ratio lié à l'âge médian est de `r round(exp(coef(modNBIs)[2]),2)`, celui lié à la latitude de `r round(exp(coef(modNBIs)[3]),2)`, et celui lié à l'interaction entre les deux de `r round(exp(coef(modNBIs)[4]),2)`. Ce qui rend l'interaction peu importante en terme de magnitude de l'effet, puisque le risk ratio est très proche de 1. Donc un simple modèle $cas=offset(log(popData2018))+Agemed$, comme le dernier présenté peut-être considéré comme suffisant.
+
+On doit cependant garder à l'esprit qu'une telle approche corrélative ne démontre pas des liens de cause à effet, mais montre des coincidences statistiques. Par exemple, la variable age médian, même si elle pourrait-être logiquement causale pour la COVID-19, ne peut pas être dissociée des autres: les pays à âge médian élevé sont aussi les pays à PIB plus élevé, à population plus urbaine, à eau courante, à plus fort traffic aérien, etc. (voir la PCA qui montre les relations entre les variables), et peut-être aussi les pays ou les biais de détection sont les plus faibles (du fait de meilleures infrastructures sanitaires). L'effet "latitude", indique probablement simplement qu'un plus grand nombre de pays à prévalence élevée sont situés dans l'hémisphère nord. L'effet âge médian sort d'ailleurs très bien, même si on ne tient pas compte de l'effet latitude.
+
+

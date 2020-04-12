@@ -1,0 +1,162 @@
+---
+title: "Cartographie prévalence et mortalité cumulées"
+author: "PG"
+date: "`r format(Sys.time(), '%d %B %Y %H:%M')`"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache=TRUE)
+knitr::opts_chunk$set(fig.height=10)
+knitr::opts_chunk$set(fig.width=80)
+knitr::opts_chunk$set(echo=FALSE)
+```
+
+
+# Principe
+
+La prévalence par pays est calculée en sommant les cas rapportés divisés par la taille de la population (donnée ECDC). Elle est donnée pour 100 000 habitants.
+
+La mortalité est ici le nombre de morts divisé par le nombre de cas rapporté. Il s'agit bien sûr sur surestimation majeure, puisque les cas non rapportés ne sont pas pris en compte. L'intervalle de confiance correspondant est à 95%.
+
+
+# Origine des données
+
+ECDC: [https://opendata.ecdc.europa.eu/covid19/casedistribution/csv](https://opendata.ecdc.europa.eu/covid19/casedistribution/csv)
+
+```{r, echo = FALSE,results='hide'}
+
+library(pgirmess)
+library(RColorBrewer)
+library(classInt)
+library(sp)
+
+
+ecdc<-read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv")
+head(ecdc[ecdc$countriesAndTerritories=="France",])
+tail(ecdc[ecdc$countriesAndTerritories=="France",])
+names(ecdc)[1]<-"dateRep"
+ecdc$dateRep<-strptime(ecdc$dateRep,format="%d/%m/%Y")
+
+load("ACOMS.Rdata")
+load("ECDCmap.Rdata")
+
+dateJ<-unique(ecdc$dateRep)[1]
+
+ACOMS[ACOMS$country=="Eritrea",3]<-5750433
+
+daydir<-paste0("./PrevalenceMortalite_",as.character(dateJ))
+dir.create(daydir)
+
+```
+
+Les chiffres sont arrêtés au `r as.character(dateJ)`.
+
+# Calculs
+
+
+```{r, warning=FALSE}
+
+totaux<-data.frame(matrix(nrow=nrow(ACOMS),ncol=8))
+names(totaux)<-c("country","pop","cases","prev","deaths","mortal","mCIlow","mCIup")
+for(i in 1:nrow(ACOMS)){
+pays<-ecdc[ecdc$countriesAndTerritories==as.character(ACOMS$country[i]),]
+pays<-pays[order(pays$dateRep),]
+totaux[i,1]<-as.character(ACOMS$country[i])
+totaux[i,2]<-ACOMS[i,3]
+totaux[i,3]<-sum(pays$cases)
+totaux[i,4]<-round(sum(pays$cases)/ACOMS[i,3]*1e5,2)
+totaux[i,5]<-sum(pays$deaths)
+test<-prop.test(totaux[i,5],totaux[i,3])
+totaux[i,6]<-round(test$estimate,2)
+totaux[i,7:8]<-round(test$conf.int,2)
+}
+
+totaux[,c(1,4,6:8)]
+
+write.delim(totaux,paste0(daydir,"/totaux.txt"))
+
+```
+
+Les données sont disponibles dans le fichier totaux.txt du zip '`r substring(paste0(daydir,".zip"),3,100)`'
+
+
+# Cartographie
+
+```{r}
+
+noOMS<-is.na(ECDCmap@data$ECDC)| ECDCmap@data$ECDC=="Djibouti" | ECDCmap@data$ECDC=="Egypt" | ECDCmap@data$ECDC=="Libya" | ECDCmap@data$ECDC=="Morocco" | ECDCmap@data$ECDC=="Somalia" | ECDCmap@data$ECDC=="Sudan" | ECDCmap@data$ECDC=="Tunisia"
+nodata<-ECDCmap@data$ECDC=="Lesotho" | ECDCmap@data$ECDC=="Western_Sahara" | ECDCmap@data$ECDC=="South_Sudan" | ECDCmap@data$ECDC=="Malawi"
+
+```
+
+Les îles suivantes ne sont pas représentées sur la carte: `r totaux[!totaux[,1]%in%ECDCmap@data$ECDC,1]`.
+
+## Prévalence (pour 100 000 habitants)
+
+```{r, fig.height=10, fig.width=10, warning=FALSE, results='hide'}
+
+
+idx<-match(ECDCmap@data$ECDC,totaux[,1])
+pal<-brewer.pal(5,"Reds")
+q5<-classIntervals(totaux[idx,"prev"],n=5,style="fisher")
+
+ # plot(q5,pal)
+q5Colours<-findColours(q5,pal)
+
+par(mar=c(0,0,0,0))
+plot(ECDCmap,col=q5Colours)
+plot(ECDCmap[is.na(totaux[idx,"prev"]),],col="grey",add=TRUE)
+plot(ECDCmap[!is.na(totaux[idx,"prev"])& totaux[idx,"prev"]==0,],col="white",add=TRUE)
+text(coordinates(ECDCmap),labels=ifelse(!is.na(totaux[idx,"prev"]),totaux[idx,"prev"],""),cex=1)
+legend("bottomleft",fill=c(attr(q5Colours,"palette"),"grey"),legend=c(names(attr(q5Colours,"table")),"no data"),bty="n",title=paste0("Prevalence (x 100 000, ",as.character(dateJ),")"))
+
+
+jpeg(paste0(daydir,"/mapPrevalence",as.character(dateJ),".jpg"),width=20,height=20,unit="cm",res=100)
+par(mar=c(0,0,0,0))
+plot(ECDCmap,col=q5Colours)
+plot(ECDCmap[is.na(totaux[idx,"prev"]),],col="grey",add=TRUE)
+plot(ECDCmap[!is.na(totaux[idx,"prev"])& totaux[idx,"prev"]==0,],col="white",add=TRUE)
+text(coordinates(ECDCmap),labels=ifelse(!is.na(totaux[idx,"prev"]),totaux[idx,"prev"],""),cex=0.8)
+legend("bottomleft",fill=c(attr(q5Colours,"palette"),"grey"),legend=c(names(attr(q5Colours,"table")),"no data"),bty="n",title=paste0("Prevalence (x 100 000, ",as.character(dateJ),")"))
+dev.off()
+
+```
+
+
+## Mortalité
+
+```{r, fig.height=10, fig.width=10, warning=FALSE, results='hide'}
+
+
+pal<-brewer.pal(5,"Reds")
+q5<-classIntervals(totaux[idx,"mortal"],n=5,style="fisher")
+
+# plot(q5,pal)
+q5Colours<-findColours(q5,pal)
+
+par(mar=c(0,0,0,0))
+plot(ECDCmap,col=q5Colours)
+plot(ECDCmap[is.na(totaux[idx,"mortal"]),],col="grey",add=TRUE)
+plot(ECDCmap[!is.na(totaux[idx,"mortal"]) & totaux[idx,"mortal"]==0,],col="white",add=TRUE)
+text(coordinates(ECDCmap),labels=ifelse(!is.na(totaux[idx,"mortal"]),paste0(totaux[idx,"mortal"],"\n(",totaux[idx,"mCIlow"],"-",totaux[idx,"mCIup"],")"),""),cex=1)
+legend("bottomleft",fill=c("white",attr(q5Colours,"palette"),"grey"),legend=c("0",names(attr(q5Colours,"table")),"no data"),bty="n",title=paste0("Mortality (",as.character(dateJ),")"))
+
+# win.metafile(filename = paste0(daydir,"/mapMortality",as.character(dateJ),".emf"), width = 20, height = 20, pointsize = 12)
+# svg(filename = paste0(daydir,"/mapMortality",as.character(dateJ),".svg"), width = 20, height = 20, pointsize = 12)
+jpeg(paste0(daydir,"/mapMortality",as.character(dateJ),".jpg"),width=20,height=20,unit="cm",res=100)
+par(mar=c(0,0,0,0))
+plot(ECDCmap,col=q5Colours)
+plot(ECDCmap[is.na(totaux[idx,"mortal"]),],col="grey",add=TRUE)
+plot(ECDCmap[!is.na(totaux[idx,"mortal"]) & totaux[idx,"mortal"]==0,],col="white",add=TRUE)
+text(coordinates(ECDCmap),labels=ifelse(!is.na(totaux[idx,"mortal"]),paste0(totaux[idx,"mortal"],"\n(",totaux[idx,"mCIlow"],"-",totaux[idx,"mCIup"],")"),""),cex=0.8)
+legend("bottomleft",fill=c("white",attr(q5Colours,"palette"),"grey"),legend=c("0",names(attr(q5Colours,"table")),"no data"),bty="n",title=paste0("Mortality (",as.character(dateJ),")"))
+dev.off()
+
+zip(paste0(daydir,".zip"),daydir)
+
+```
+
+
+Les cartes sont stockées dans le fichier '`r substring(paste0(daydir,".zip"),3,100)`'

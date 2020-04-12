@@ -1,0 +1,236 @@
+---
+title: "Prévision statistique à 7 jours COVID-19  \nbasée sur les 10 derniers jours d'observation"
+author: "PG"
+date: "`r format(Sys.time(), '%d %B %Y %H:%M')`"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache=TRUE)
+knitr::opts_chunk$set(fig.height=8)
+knitr::opts_chunk$set(fig.width=8)
+knitr::opts_chunk$set(echo=FALSE)
+```
+
+
+# Principe du modèle
+
+On calcule les paramètres d'un modèle linéaire ($cas = a + b.temps$), d'un modèle exponentiel ($ln(cas) = a + b.temps$) et d'un modèle log-log ($ln(cas) = a +ln(temps)$ sur les 10 derniers jours d'une série d'observation. On compare leurs r^2^ et on utilise le meilleur modèle (celui qui a le plus petit r^2^) pour prédire le nombre de cas au J^ième^ jour après la fin de la série.
+
+Pour la validation voir fichier 'Report_200406_test_model.docx'
+
+
+# Origine des données
+
+ECDC: [https://opendata.ecdc.europa.eu/covid19/casedistribution/csv](https://opendata.ecdc.europa.eu/covid19/casedistribution/csv)
+
+```{r, echo = FALSE,results='hide'}
+
+library(pgirmess)
+library(RColorBrewer)
+library(classInt)
+library(sp)
+
+
+ecdc<-read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv")
+head(ecdc[ecdc$countriesAndTerritories=="France",])
+tail(ecdc[ecdc$countriesAndTerritories=="France",])
+names(ecdc)[1]<-"dateRep"
+ecdc$dateRep<-strptime(ecdc$dateRep,format="%d/%m/%Y")
+
+load("ACOMS.Rdata")
+load("ECDCmap.Rdata")
+
+dateJ<-unique(ecdc$dateRep)[1]
+
+```
+
+# Sélection des séries
+
+Les prévisions sont faites sur les séries d'au moins 10 jours à partir du 1^er^ cas.
+
+```{r}
+
+size<-data.frame(matrix(nrow=nrow(ACOMS),ncol=2))
+names(size)<-c("country","days")
+start<-1
+for(i in 1:nrow(ACOMS)){
+# print(as.character(ACOMS$country[i]))
+pays<-ecdc[ecdc$countriesAndTerritories==as.character(ACOMS$country[i]),]
+pays<-pays[order(pays$dateRep),]
+firstcase<-which(cumsum(pays$cases)>start)[1]
+size[i,1]<-as.character(ACOMS$country[i])
+if(!is.na(firstcase)) size[i,2]<-length(cumsum(pays$cases)[firstcase:length(cumsum(pays$cases))]) else size[i,2]<-0
+}
+
+# size[size[,2]>=10,]
+
+size10<-size[size[,2]>=10,]
+
+series10<-rep(list(NA),nrow(size10))
+names(series10)<-size10[,1]
+start<-1
+for(i in 1:nrow(size10)){
+pays<-ecdc[ecdc$countriesAndTerritories==as.character(size10$country[i]),]
+pays<-pays[order(pays$dateRep),]
+firstcase<-which(cumsum(pays$cases)>start)[1]
+series10[[i]]<-cumsum(pays$cases)[firstcase:length(pays$dateRep)]
+}
+
+
+save(series10,file="series10.Rdata")
+
+```
+
+`r nrow(size10)` pays satisfont aux critères
+
+```{r}
+
+plot(c(1,max(sapply(series10,length))+5),c(1,log10(max(sapply(series10,max)))),las=1,ylab="log10(cases)",xlab="days since 1th case",type="n")
+
+
+start<-1
+for(i in 1:nrow(size10)){
+pays<-ecdc[ecdc$countriesAndTerritories==as.character(size10$country[i]),]
+pays<-pays[order(pays$dateRep),]
+firstcase<-which(cumsum(pays$cases)>start)[1]
+if(!is.na(firstcase)) {
+    x<-1:length(firstcase:length(pays$dateRep))
+    y<-log10(cumsum(pays$cases)[firstcase:length(pays$dateRep)])
+  lines(x,y)
+  text(x=length(x),y=y[length(y)],labels=as.character(size10$country[i]),cex=0.8,pos=4,col="red")
+}
+}
+
+
+```
+
+# Prévisions à 7 jours
+
+```{r, warning=FALSE}
+cat("Dernier jour de mesure:",as.character(dateJ),"\n")
+cat("Prévisions pour le:",as.character(dateJ+7*24*60*60),"\n")
+
+# oldw <- getOption("warn")
+# options(warn = -1)
+
+resPred<-data.frame(matrix(nrow=nrow(size10),ncol=5))
+names(resPred)<-c("country","casJ","pred7","r2","model")
+resPred[,1]<-size10[,1]
+
+for(i in 1:nrow(size10)){
+  idxdt<-(length(series10[[i]])-9):length(series10[[i]])
+  datapays<-data.frame(dateN=idxdt,cas=series10[[i]][idxdt],logcas=log(series10[[i]][idxdt]),lldate=log(idxdt))
+  newdata<-data.frame(dateN=idxdt[length(idxdt)]+7,lldate=log(idxdt[length(idxdt)]+7))
+  modL<-lm(cas~dateN,data=datapays)
+  modE<-lm(logcas~dateN,data=datapays)
+  modLL<-lm(logcas~lldate,data=datapays)
+  R2s<-c(summary(modL)$adj.r.squared,summary(modE)$adj.r.squared, summary(modLL)$adj.r.squared)
+  idxR<-which(R2s==min(R2s)); if (length(idxR)>1) idxR<-idxR[1]
+  resPred[i,2]<-series10[[i]][length(series10[[i]])]
+   if(length(idxR!=0)) {  
+   if(idxR==1) {
+    resPred[i,3]<-round(predict(modL,newdata=newdata),0)
+    resPred[i,4]<-round(summary(modL)$adj.r.squared,2)
+    resPred[i,5]<-"lin"
+  }
+  
+  if(idxR==2){
+    resPred[i,3]<-round(exp(predict(modE,newdata=newdata)),0)
+    resPred[i,4]<-round(summary(modE)$adj.r.squared,2)
+    resPred[i,5]<-"exp"    
+  } 
+ 
+  if(idxR==3) {
+    resPred[i,3]<-round(exp(predict(modLL,newdata=newdata)),0)
+    resPred[i,4]<-round(summary(modLL)$adj.r.squared,2)
+    resPred[i,5]<-"log"    
+  }
+}
+}
+
+resPred$J7surJ<-round(resPred$pred7/resPred$casJ,1)
+resPred
+
+daydir<-paste0("./Previsions_",as.character(dateJ))
+dir.create(daydir)
+
+write.delim(resPred,paste0(daydir,"/0ResPred-",as.character(dateJ),".txt"))
+
+# options(warn = oldw)
+
+```
+
+Les données sont disponibles dans le fichier '`r paste0("0resPred-",as.character(dateJ),".txt")`' du zip '`r substring(paste0(daydir,".zip"),3,100)`'
+
+# Graphes des dynamiques par pays
+
+```{r, results='hide', warning=FALSE}
+
+
+for(i in 1:nrow(ACOMS)){
+# print(as.character(ACOMS$country[i]))
+pays<-ecdc[ecdc$countriesAndTerritories==as.character(ACOMS$country[i]),]
+pays<-pays[order(pays$dateRep),]
+firstcase<-which(pays$cases>=1);firstcase<-firstcase[1]
+jpeg(paste0(daydir,"/",as.character(ACOMS[i,1]),".jpg"))
+plot(pays$dateRep[firstcase:length(pays$dateRep)],cumsum(pays$cases)[firstcase:length(pays$dateRep)],type="l",las=1,xlab="",ylab="cases",main=paste0(as.character(ACOMS$country[i]),"\n",as.character(dateJ)))
+dev.off()
+}
+
+
+
+
+```
+
+
+Les graphes des dynamiques par pays sont stockées dans le fichier '`r substring(paste0(daydir,".zip"),3,100)`'
+
+# Cartographie des prévisions
+
+```{r}
+
+noOMS<-is.na(ECDCmap@data$ECDC)| ECDCmap@data$ECDC=="Djibouti" | ECDCmap@data$ECDC=="Egypt" | ECDCmap@data$ECDC=="Libya" | ECDCmap@data$ECDC=="Morocco" | ECDCmap@data$ECDC=="Somalia" | ECDCmap@data$ECDC=="Sudan" | ECDCmap@data$ECDC=="Tunisia"
+nodata<-ECDCmap@data$ECDC=="Lesotho" | ECDCmap@data$ECDC=="Western_Sahara" | ECDCmap@data$ECDC=="South_Sudan" | ECDCmap@data$ECDC=="Malawi"
+
+```
+
+Les îles suivantes ne sont pas représentées sur la carte: `r resPred[!resPred[,1]%in%ECDCmap@data$ECDC,1]`.
+
+```{r, fig.height=10, fig.width=10, warning=FALSE, results='hide'}
+
+
+idx<-match(ECDCmap@data$ECDC,resPred[,1])
+pal<-brewer.pal(5,"Reds")
+q5<-classIntervals(resPred[idx,"pred7"],n=5,style="fixed",fixedBreaks=c(0,100,500,1000,2500,100000))
+# plot(q5,pal)
+q5Colours<-findColours(q5,pal)
+
+par(mar=c(0,0,0,0))
+plot(ECDCmap,col=q5Colours)
+# text(coordinates(ECDCmap),labels=ECDCmap$ECDC)
+# plot(ECDCmap[noOMS,],col="grey",add=TRUE)
+# plot(ECDCmap[nodata,],col="grey",add=TRUE)
+plot(ECDCmap[is.na(resPred[idx,"pred7"]),],col="grey",add=TRUE)
+text(coordinates(ECDCmap),labels=ifelse(!is.na(resPred[idx,"pred7"]),paste0(resPred[idx,"casJ"],"->",resPred[idx,"pred7"],"\n",resPred[idx,"J7surJ"]),""),cex=1)
+# legend("bottomleft",fill=c(attr(q5Colours,"palette"),"grey"),legend=c(names(attr(q5Colours,"table")),"non WHO Africa or NA"),bty="n",title="Cases 16/4/20 (predicted)")
+legend("bottomleft",fill=c(attr(q5Colours,"palette"),"grey"),legend=c(names(attr(q5Colours,"table")),"no data"),bty="n",title=paste0("Cases ",as.character(dateJ+7*24*60*60)," (predicted)"))
+
+jpeg(paste0(daydir,"/0map",as.character(dateJ+7*24*60*60),".jpg"),width=20,height=20,unit="cm",res=100)
+par(mar=c(0,0,0,0))
+plot(ECDCmap,col=q5Colours)
+# text(coordinates(ECDCmap),labels=ECDCmap$ECDC)
+# plot(ECDCmap[noOMS,],col="grey",add=TRUE)
+# plot(ECDCmap[nodata,],col="grey",add=TRUE)
+plot(ECDCmap[is.na(resPred[idx,"pred7"]),],col="grey",add=TRUE)
+text(coordinates(ECDCmap),labels=ifelse(!is.na(resPred[idx,"pred7"]),paste0(resPred[idx,"casJ"],"->",resPred[idx,"pred7"],"\n",resPred[idx,"J7surJ"]),""),cex=0.8)
+# legend("bottomleft",fill=c(attr(q5Colours,"palette"),"grey"),legend=c(names(attr(q5Colours,"table")),"non WHO Africa or NA"),bty="n",title="Cases 16/4/20 (predicted)")
+legend("bottomleft",fill=c(attr(q5Colours,"palette"),"grey"),legend=c(names(attr(q5Colours,"table")),"no data"),bty="n",title=paste0("Cases ",as.character(dateJ+7*24*60*60)," (predicted)"))
+dev.off()
+
+zip(paste0(daydir,".zip"),daydir)
+
+```
+
+La carte est stockée dans le fichier '`r substring(paste0(daydir,".zip"),3,100)`'
