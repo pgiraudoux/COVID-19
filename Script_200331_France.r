@@ -35,7 +35,7 @@ axis(1,at=as.numeric(cov19$jour),labels=as.POSIXlt(cov19$jour)$mday)
 plot(diff(cov19$hosp)~as.numeric(jour)[2:length(as.numeric(jour))],data=cov19,xaxt="n",xlab="",ylab="Entrées/jour",las=1,type="h")
 axis(1,at=as.numeric(cov19$jour)[2:length(as.numeric(cov19$jour))],labels=as.POSIXlt(cov19$jour)$mday[2:length(as.numeric(cov19$jour))])
 
- 
+diff(cov19$hosp)
 # tendance à partir du 25
 
 
