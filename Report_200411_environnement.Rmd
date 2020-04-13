@@ -246,6 +246,9 @@ modNBIs<-gamlss(cas~offset(log(popData2018))+Agemed*LatCentroid,family=NBI,data=
 ```{r, message=FALSE, echo=TRUE}
 # plot(modNBIs)
 summary(modNBIs)
+exp(coef(modNBIs))
+Rsq(modNBIs)
+
 
 ```
 
@@ -257,7 +260,8 @@ incl<-!(rownames(df20)=="Mauritius" | rownames(df20)=="Seychelles")
 modNBIs2<-gamlss(cas~offset(log(popData2018))+Agemed*LatCentroid,family=NBI,data=df20[incl,])
 # plot(modNBIs2)
 summary(modNBIs2)
-exp(coef(modNBIs))
+exp(coef(modNBIs2))
+Rsq(modNBIs2)
 ```
 
 Le modèle reste valide.
@@ -265,28 +269,31 @@ Le modèle reste valide.
 On peut s'interroger sur ce que représente l'effet de la latitude: opposition hémisphère nord/hémisphère sud ou écart à l'équateur. Pour le vérifier, on bâtit un modèle ou la latitude est exprimée en valeur absolue (donc représente alors un écart à l'équateur)
 
 ```{r}
-modNBIlat<-gamlss(cas~offset(log(popData2018))+Agemed*Densite*I(abs(LatCentroid)),family=NBI,data=df20)
-summary(modNBIlat)
+modNBIlat1<-gamlss(cas~offset(log(popData2018))+Agemed*Densite*I(abs(LatCentroid)),family=NBI,data=df20)
+summary(modNBIlat1)
 ```
 
 Plus rien de significatif.
 
 ```{r, message=FALSE, echo=TRUE}
-modNBIlat<-gamlss(cas~offset(log(popData2018))+Agemed*Densite,family=NBI,data=df20)
-summary(modNBIlat)
+modNBIlat2<-gamlss(cas~offset(log(popData2018))+Agemed*Densite,family=NBI,data=df20)
+summary(modNBIlat2)
 ```
 
 
 ```{r, message=FALSE, echo=TRUE}
-modNBIlat<-gamlss(cas~offset(log(popData2018))+Agemed,family=NBI,data=df20)
-summary(modNBIlat)
+modNBIlat3<-gamlss(cas~offset(log(popData2018))+Agemed,family=NBI,data=df20)
+summary(modNBIlat3)
+Rsq(modNBIlat3)
 ```
 
 L'âge médian redevient alors hautement significatif.
 
 # Conclusion
 
-On peut donc raisonnablement en conclure que le risk ratio lié à l'âge médian est de `r round(exp(coef(modNBIs)[2]),2)`, celui lié à la latitude de `r round(exp(coef(modNBIs)[3]),2)`, et celui lié à l'interaction entre les deux de `r round(exp(coef(modNBIs)[4]),2)`. Ce qui rend l'interaction peu importante en terme de magnitude de l'effet, puisque le risk ratio est très proche de 1. Donc un simple modèle $cas=offset(log(popData2018))+Agemed$, comme le dernier présenté peut-être considéré comme suffisant.
+On peut donc raisonnablement en conclure que le risk ratio lié à l'âge médian est de `r round(exp(coef(modNBIs)[2]),2)`, celui lié à la latitude de `r round(exp(coef(modNBIs)[3]),2)`, et celui lié à l'interaction entre les deux de `r round(exp(coef(modNBIs)[4]),2)`. Ce qui rend l'interaction peu importante en terme de magnitude de l'effet, puisque le risk ratio est très proche de 1. Le pseudo r^2^ de ce modèle est de `r round(Rsq(modNBIs),2)`.
+
+Un simple modèle $cas=offset(log(popData2018))+Agemed$, comme le dernier présenté pourrait-être considéré comme suffisant, mais son pseudo r^2^ n'est plus que de `r round(Rsq(modNBIlat3),2)`
 
 On doit cependant garder à l'esprit qu'une telle approche corrélative ne démontre pas des liens de cause à effet, mais montre des coincidences statistiques. Par exemple, la variable age médian, même si elle pourrait-être logiquement causale pour la COVID-19, ne peut pas être dissociée des autres: les pays à âge médian élevé sont aussi les pays à PIB plus élevé, à population plus urbaine, à eau courante, à plus fort traffic aérien, etc. (voir la PCA qui montre les relations entre les variables), et peut-être aussi les pays ou les biais de détection sont les plus faibles (du fait de meilleures infrastructures sanitaires). L'effet "latitude", indique probablement simplement qu'un plus grand nombre de pays à prévalence élevée sont situés dans l'hémisphère nord. L'effet âge médian sort d'ailleurs très bien, même si on ne tient pas compte de l'effet latitude.
 
