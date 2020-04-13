@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo=FALSE)
 
 # Principe du modèle
 
-On calcule les paramètres d'un modèle linéaire ($cas = a + b.temps$), d'un modèle exponentiel ($ln(cas) = a + b.temps$) et d'un modèle semi-log ($cas = a +ln(temps)$ sur les 10 jours d'une série d'observation. On compare leurs r^2^ et on utilise le meilleur modèle (celui qui a le plus grand r^2^) pour prédire le nombre de cas au Jt^ième^ jour après la fin de la série.
+On calcule les paramètres d'un modèle linéaire ($cas = a + b.temps$), d'un modèle exponentiel ($ln(cas) = a + b.temps$) et d'un modèle semi-log ($cas = a +ln(temps)$) sur les 10 jours d'une série d'observation. On compare leurs r^2^ et on utilise le meilleur modèle (celui qui a le plus grand r^2^) pour prédire le nombre de cas au Jt^ième^ jour après la fin de la série.
 
 ![](Algorithme3.png)
 
@@ -211,26 +211,30 @@ offset<-4
 boxplot(t(bilanratio)[,(offset+1):ncol(t(bilanratio))],las=1,xaxt="n",xlab="begining day of the 10 day window",ylab="error ratio")
 axis(1,at=1:(ncol(t(bilanratio))-offset),labels=(offset+1):ncol(t(bilanratio)))
 
-range(bilanratio[10,])
 ```
 
 
-On pourrait donc en conclure qu'une estimation à J+5 serait "en moyenne" assez correcte (ratio d'erreur proche de 1), mais avec des possibilités d'erreurs qui restent importantes (`r range(bilanratio[12,])`). A J+7 on est pas à l'abri de grosses erreurs (`r range(bilanratio[10,])`).
+On pourrait donc en conclure qu'une estimation à J+5 serait "en moyenne" assez correcte (ratio d'erreur proche de 1), mais avec des possibilités d'erreurs qui restent importantes (`r range(bilanratio[12,])`). A J+7 on est pas à l'abri de grosses erreurs (`r range(bilanratio[10,])`) .
+
+```{r}
+hist(bilanratio[10,],breaks=seq(0,3.5,by=0.25),xlab="Valeur absolue/valeur prédite",main="Biais de prédiction à 7 jours",las=1)
+```
+
 
 
 Ce que nous indique finalement ces tableaux et ce graphe c'est que, dans la phase de croissance épidémique:
 
 - les estimations de J+15 à J+10 sont farfelues
 - les estimations de J+11 à J+6 sont encore assez aléatoires
-- les estimations de J+5 à J+1 sont laissent place encore à des erreurs (qui peuvent être imputées parfois à des changements de dynamique épidémique; ex. confinement en Afrique du Sud)
+- les estimations de J+5 à J+1 laissent place encore à des erreurs (qui peuvent être imputées parfois à des changements de dynamique épidémique; ex. confinement en Afrique du Sud)
 
 # Conclusion
 
 - les dynamiques épidémiques sont très variables d'un pays à l'autre et varient aussi au cours du temps, et de ce fait, ne peuvent être décrites par un modèle unique; chaque tentative de prédiction est dépendante du type de dynamique observé, du stade dans lequel on est dans la dynamique et d'éventuels changement de dynamiques:
 - les predictions > 10 jours sont impossibles
-- les prédictions à 10 jours sont possibles, mais avec de gros risques d'erreur parfois.
+- les prédictions à 10 jours sont possibles, mais avec de gros risques d'erreur.
 - les predictions les moins incorrectes sont obtenues à 1-5 jours
 
-Les prédictions les plus fiables seront certainement faites en terme d'interprétation raisonnée, en combinant l'observation visuelle des courbes et cette approche de modélisation (ou une autre approche "modèle"), combinée à d'autres indicateurs locaux du tableau de bord épidémique. L'expérience terrain des épidémies est ici irremplacable, et aucun modèle, à l'heure actuelle ne peut *a priori* rendre compte de la diversité des situations. Bien sûr, de nombreux modèles s'ajustant au mieux aux données pourront être produits quand les séries seront complètes. Mais on sera alors là dans une position purement académique post-crise, qui n'est pas celle requise par la demande opérationnelle du présent.
+Les prédictions les plus fiables seront certainement faites en terme d'interprétation raisonnée, en combinant  cette approche de modélisation (indicative) et l'observation visuelle des courbes. Aucun modèle, à l'heure actuelle ne peut *a priori* rendre compte sans risque de la diversité des situations sur un terme dépassant 5 jours. Bien sûr, de nombreux modèles s'ajustant au mieux aux données pourront être produits quand les séries seront complètes. Mais on sera alors là hélas dans une position purement académique et d'école post-crise, qui n'est pas celle requise par la demande opérationnelle du présent.
 
 
