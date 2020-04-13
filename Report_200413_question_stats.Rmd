@@ -1,0 +1,115 @@
+---
+title: "Comment comparer des modèles différents?"
+author: "PG"
+date: "`r format(Sys.time(), '%d %B %Y %H:%M')`"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache=TRUE)
+knitr::opts_chunk$set(fig.height=8)
+knitr::opts_chunk$set(fig.width=8)
+knitr::opts_chunk$set(echo=TRUE)
+```
+
+
+# Le problème
+
+On souhaite fitter des modèles sur des séries temporelles qui peuvent être linéaires, exponentielles ou asymptotiques. On ajuste aux données tous mes modèles possibles, et on voudrait trouver un critère objectif de choix du "meilleur" modèle (celui qui laisse le moins de résidus) pour effectuer ensuite des prédictions hors intervalle de fittage (ce qui exclut les modèles polynomiaux, GAM, etc.)
+
+# Les exemples de données
+
+```{r,fig.width=10,fig.height=4}
+
+load("Examples.Rdata")
+
+par(mfrow=c(1,3))
+for(i in 1:3) plot(ex[[i]],main=names(ex[i]))
+
+datapays<-rep(list(NA),length(ex))
+names(datapays)<-names(ex)
+for(i in 1:3) datapays[[i]]<-data.frame(dateN=1:length(ex[[i]]),cas=ex[[i]],logcas=log(ex[[i]]),lldate=log(1:length(ex[[i]])))
+
+```
+
+# Cas linéaire
+
+```{r}
+
+i<-1
+
+modL<-lm(cas~dateN,data=datapays[[i]])
+modE<-lm(logcas~dateN,data=datapays[[i]])
+modsL<-lm(cas~lldate,data=datapays[[i]])
+modAs<-nls(cas~SSasymp(dateN, Asym, resp0, lrc),data=datapays[[i]])
+
+par(mfrow=c(2,2))
+plot(datapays[[i]]$cas)
+lines(datapays[[i]]$dateN,predict(modL))
+plot(datapays[[i]]$cas)
+lines(datapays[[i]]$dateN,exp(predict(modE)))
+plot(datapays[[i]]$cas)
+lines(exp(datapays[[i]]$lldate),predict(modsL))
+plot(datapays[[i]]$cas)
+lines(datapays[[i]]$dateN,predict(modAs))
+
+
+R2s<-c(summary(modL)$adj.r.squared,summary(modE)$adj.r.squared, summary(modsL)$adj.r.squared)
+R2s
+```
+
+
+# Cas exponentiel
+
+```{r}
+
+i<-2
+
+modL<-lm(cas~dateN,data=datapays[[i]])
+modE<-lm(logcas~dateN,data=datapays[[i]])
+modsL<-lm(cas~lldate,data=datapays[[i]])
+modAs<-nls(cas~SSasymp(dateN, Asym, resp0, lrc),data=datapays[[i]])
+
+par(mfrow=c(2,2))
+plot(datapays[[i]]$cas)
+lines(datapays[[i]]$dateN,predict(modL))
+plot(datapays[[i]]$cas)
+lines(datapays[[i]]$dateN,exp(predict(modE)))
+plot(datapays[[i]]$cas)
+lines(exp(datapays[[i]]$lldate),predict(modsL))
+# plot(datapays[[i]]$cas)
+# lines(datapays[[i]]$dateN,predict(modAs))
+
+
+R2s<-c(summary(modL)$adj.r.squared,summary(modE)$adj.r.squared, summary(modsL)$adj.r.squared)
+R2s
+```
+
+# Cas asymptotique
+
+
+```{r}
+
+i<-3
+
+modL<-lm(cas~dateN,data=datapays[[i]])
+modE<-lm(logcas~dateN,data=datapays[[i]])
+modsL<-lm(cas~lldate,data=datapays[[i]])
+modAs<-nls(cas~SSasymp(dateN, Asym, resp0, lrc),data=datapays[[i]])
+
+par(mfrow=c(2,2))
+plot(datapays[[i]]$cas)
+lines(datapays[[i]]$dateN,predict(modL))
+plot(datapays[[i]]$cas)
+lines(datapays[[i]]$dateN,exp(predict(modE)))
+plot(datapays[[i]]$cas)
+lines(exp(datapays[[i]]$lldate),predict(modsL))
+plot(datapays[[i]]$cas)
+lines(datapays[[i]]$dateN,predict(modAs))
+
+
+R2s<-c(summary(modL)$adj.r.squared,summary(modE)$adj.r.squared, summary(modsL)$adj.r.squared)
+R2s
+
+

@@ -8,16 +8,21 @@ ecdc$dateRep<-strptime(ecdc$dateRep,format="%d/%m/%Y")
 
 "Uganda"
 
+Uganda<-mescas
+Algeria<-mescas
+Chad<-mescas
 
+ex<-list(Chad=Chad,Algeria=Algeria,Uganda=Uganda)
 
-pays<-ecdc[ecdc$countriesAndTerritories=="Uganda",]
+save(ex,file="Examples.Rdata")
+pays<-ecdc[ecdc$countriesAndTerritories=="Chad",]
 pays<-pays[order(pays$dateRep),]
 plot(pays$dateRep,cumsum(pays$cases),las=1,type="l",las=1,xlab="",ylab="cases")
 
 start<-1
 firstcase<-which(cumsum(pays$cases)>=start)[1]
 
-duree<-20
+duree<-24
 mescas<-cumsum(pays$cases)[(length(pays$cases)-duree+1):length(pays$cases)]
 length(mescas)
 datapays<-data.frame(dateN=1:duree,cas=mescas,logcas=log(mescas),lldate=log(1:duree))

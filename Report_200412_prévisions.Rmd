@@ -125,9 +125,9 @@ for(i in 1:nrow(size10)){
   newdata<-data.frame(dateN=idxdt[length(idxdt)]+7,lldate=log(idxdt[length(idxdt)]+7))
   modL<-lm(cas~dateN,data=datapays)
   modE<-lm(logcas~dateN,data=datapays)
-  modLL<-lm(logcas~lldate,data=datapays)
-  R2s<-c(summary(modL)$adj.r.squared,summary(modE)$adj.r.squared, summary(modLL)$adj.r.squared)
-  idxR<-which(R2s==min(R2s)); if (length(idxR)>1) idxR<-idxR[1]
+  modSL<-lm(cas~lldate,data=datapays)
+  R2s<-c(summary(modL)$adj.r.squared,summary(modE)$adj.r.squared, summary(modSL)$adj.r.squared)
+  idxR<-which(R2s==max(R2s)); if (length(idxR)>1) idxR<-idxR[1]
   resPred[i,2]<-series10[[i]][length(series10[[i]])]
    if(length(idxR!=0)) {  
    if(idxR==1) {
@@ -139,13 +139,13 @@ for(i in 1:nrow(size10)){
   if(idxR==2){
     resPred[i,3]<-round(exp(predict(modE,newdata=newdata)),0)
     resPred[i,4]<-round(summary(modE)$adj.r.squared,2)
-    resPred[i,5]<-"exp"    
+    resPred[i,5]<-"exp"
   } 
  
   if(idxR==3) {
-    resPred[i,3]<-round(exp(predict(modLL,newdata=newdata)),0)
-    resPred[i,4]<-round(summary(modLL)$adj.r.squared,2)
-    resPred[i,5]<-"log"    
+    resPred[i,3]<-round(predict(modSL,newdata=newdata),0)
+    resPred[i,4]<-round(summary(modSL)$adj.r.squared,2)
+    resPred[i,5]<-"asy"
   }
 }
 }

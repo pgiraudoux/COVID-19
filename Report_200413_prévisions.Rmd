@@ -16,9 +16,9 @@ knitr::opts_chunk$set(echo=FALSE)
 
 # Principe du modèle
 
-On calcule les paramètres d'un modèle linéaire ($cas = a + b.temps$), d'un modèle exponentiel ($ln(cas) = a + b.temps$) et d'un modèle log-log ($ln(cas) = a +ln(temps)$ sur les 10 derniers jours d'une série d'observation. On compare leurs r^2^ et on utilise le meilleur modèle (celui qui a le plus petit r^2^) pour prédire le nombre de cas au J^ième^ jour après la fin de la série.
+On calcule les paramètres d'un modèle linéaire ($cas = a + b.temps$), d'un modèle exponentiel ($ln(cas) = a + b.temps$) et d'un modèle log-log ($cas = a +ln(temps)$ sur les 10 derniers jours d'une série d'observation. On compare leurs r^2^ et on utilise le meilleur modèle (celui qui a le plus grand r^2^) pour prédire le nombre de cas au J^ième^ jour après la fin de la série.
 
-Pour la validation voir fichier 'Report_200406_test_model.docx'
+Pour la validation voir fichier 'Report_200412_test_model.docx'
 
 
 # Origine des données
@@ -126,9 +126,8 @@ for(i in 1:nrow(size10)){
   modL<-lm(cas~dateN,data=datapays)
   modE<-lm(logcas~dateN,data=datapays)
   modSL<-lm(cas~lldate,data=datapays)
-  modLL<-lm(logcas~lldate,data=datapays)
-  R2s<-c(summary(modL)$adj.r.squared,summary(modE)$adj.r.squared, summary(modLL)$adj.r.squared)
-  idxR<-which(R2s==min(R2s)); if (length(idxR)>1) idxR<-idxR[1]
+  R2s<-c(summary(modL)$adj.r.squared,summary(modE)$adj.r.squared, summary(modSL)$adj.r.squared)
+  idxR<-which(R2s==max(R2s)); if (length(idxR)>1) idxR<-idxR[1]
   resPred[i,2]<-series10[[i]][length(series10[[i]])]
    if(length(idxR!=0)) {  
    if(idxR==1) {
@@ -146,14 +145,9 @@ for(i in 1:nrow(size10)){
    if(idxR==3){
     resPred[i,3]<-round(predict(modSL,newdata=newdata),0)
     resPred[i,4]<-round(summary(modSL)$adj.r.squared,2)
-    resPred[i,5]<-"slo"    
+    resPred[i,5]<-"asy"    
   }
  
-  if(idxR==4) {
-    resPred[i,3]<-round(exp(predict(modLL,newdata=newdata)),0)
-    resPred[i,4]<-round(summary(modLL)$adj.r.squared,2)
-    resPred[i,5]<-"log"    
-  }
 }
 }
 
