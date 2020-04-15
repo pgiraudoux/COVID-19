@@ -14,21 +14,11 @@ knitr::opts_chunk$set(echo=FALSE)
 ```
 
 
-```{r, echo=FALSE, message=FALSE}
-library(pgirmess)
-library(RColorBrewer)
-library(classInt)
-library(sp)
-library(wordcloud)
-
-```
-
-
 # Principe du modèle
 
 On calcule les paramètres d'un modèle linéaire ($cas = a + b.temps$), d'un modèle exponentiel ($ln(cas) = a + b.temps$) et d'un modèle log-log ($cas = a +ln(temps)$ sur les 10 derniers jours d'une série d'observation. On compare leurs r^2^ et on utilise le meilleur modèle (celui qui a le plus grand r^2^) pour prédire le nombre de cas au J^ième^ jour après la fin de la série.
 
-Pour la validation voir fichier 'Report_200412_test_model.docx'
+Pour la validation voir fichier 'Report_200415_test_model.docx'
 
 
 # Origine des données
@@ -36,6 +26,13 @@ Pour la validation voir fichier 'Report_200412_test_model.docx'
 ECDC: [https://opendata.ecdc.europa.eu/covid19/casedistribution/csv](https://opendata.ecdc.europa.eu/covid19/casedistribution/csv)
 
 ```{r, echo = FALSE,results='hide'}
+
+library(pgirmess)
+library(RColorBrewer)
+library(classInt)
+library(sp)
+library(wordcloud)
+
 
 ecdc<-read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv")
 head(ecdc[ecdc$countriesAndTerritories=="France",])
@@ -183,9 +180,6 @@ jpeg(paste0(daydir,"/",as.character(ACOMS[i,1]),".jpg"))
 plot(pays$dateRep[firstcase:length(pays$dateRep)],cumsum(pays$cases)[firstcase:length(pays$dateRep)],type="l",las=1,xlab="",ylab="cases",main=paste0(as.character(ACOMS$country[i]),"\n",as.character(dateJ)))
 dev.off()
 }
-
-
-
 
 ```
 

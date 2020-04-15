@@ -15,9 +15,10 @@ Chad<-mescas
 ex<-list(Chad=Chad,Algeria=Algeria,Uganda=Uganda)
 
 save(ex,file="Examples.Rdata")
-pays<-ecdc[ecdc$countriesAndTerritories=="France",]
+pays<-ecdc[ecdc$countriesAndTerritories=="Italy",]
 pays<-pays[order(pays$dateRep),]
-plot(pays$dateRep,cumsum(pays$cases),las=1,type="l",las=1,xlab="",ylab="cases")
+firstcase<-which(cumsum(pays$cases)>=start)[1]
+plot(pays$dateRep[firstcase:length(pays$cases)],cumsum(pays$cases)[firstcase:length(pays$cases)],las=1,type="l",las=1,xlab="",ylab="cases")
 
 cumsum(pays$deaths)
 
