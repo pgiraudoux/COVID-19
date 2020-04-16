@@ -28,6 +28,7 @@ plot(diff(cov19$dc)~as.numeric(jour)[2:length(as.numeric(jour))],data=cov19,xaxt
 axis(1,at=as.numeric(cov19$jour)[2:length(as.numeric(cov19$jour))],labels=as.POSIXlt(cov19$jour)$mday[2:length(as.numeric(cov19$jour))])
 
 ## hospitalisées
+cov19$hosp
 plot(hosp~as.numeric(jour),data=cov19,xaxt="n",xlab="",ylab="Hospitalisés",las=1,type="l")
 axis(1,at=as.numeric(cov19$jour),labels=as.POSIXlt(cov19$jour)$mday)
 
