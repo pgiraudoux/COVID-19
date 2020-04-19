@@ -2,19 +2,46 @@
 
 # https://www.data.gouv.fr/fr/datasets/donnees-hospitalieres-relatives-a-lepidemie-de-covid-19/#_
 
-url1<-"https://static.data.gouv.fr/resources/donnees-hospitalieres-relatives-a-lepidemie-de-covid-19/20200330-190005/donnees-hospitalieres-covid19-2020-03-30-19h00.csv"
+# url1<-"https://static.data.gouv.fr/resources/donnees-hospitalieres-relatives-a-lepidemie-de-covid-19/20200330-190005/donnees-hospitalieres-covid19-2020-03-30-19h00.csv"
 
 url1<-"https://www.data.gouv.fr/fr/datasets/r/63352e38-d353-4b54-bfd1-f1b3ee1cabd7" # url stable
-
-
-
 cov19brut<-read.table(url1,sep=";",header=TRUE)
-
 head(cov19brut)
 tail(cov19brut)
 cov19<-cov19brut[cov19brut$sexe==0,]
 cov19<-aggregate(cov19[,4:7],by=list(jour=cov19$jour),sum)
 cov19$jour<-strptime(cov19$jour,format="%Y-%m-%d")
+
+url2<-"https://www.data.gouv.fr/fr/datasets/r/6fadff46-9efd-4c53-942a-54aca783c30c"
+cov19n<-read.table(url2,sep=";",header=TRUE)
+cov19n<-aggregate(cov19n[,3:6],by=list(jour=cov19n$jour),sum)
+head(cov19n)
+tail(cov19n)
+cov19n$jour<-strptime(cov19n$jour,format="%Y-%m-%d")
+
+
+
+
+par(mfrow=c(2,2))
+
+
+plot(incid_hosp~as.numeric(jour),data=cov19n,xaxt="n",xlab="",ylab="Entrées/jour",las=1,type="h",main="Hôpital: nombre d'entrées/jour")
+axis(1,at=as.numeric(cov19$jour)[2:length(as.numeric(cov19$jour))],labels=as.POSIXlt(cov19$jour)$mday[2:length(as.numeric(cov19$jour))])  
+
+plot(incid_hosp-incid_rad~as.numeric(jour),data=cov19n,xaxt="n",xlab="",ylab="Entrées-sorties",las=1,type="h",main="(Entrée-sorties)/jour")
+axis(1,at=as.numeric(cov19$jour)[2:length(as.numeric(cov19$jour))],labels=as.POSIXlt(cov19$jour)$mday[2:length(as.numeric(cov19$jour))])  
+
+plot(hosp~as.numeric(jour),data=cov19,xaxt="n",xlab="",ylab="Hospitalisés",las=1,type="l",main="Nombre d'hospitalisés")
+axis(1,at=as.numeric(cov19$jour),labels=as.POSIXlt(cov19$jour)$mday)
+
+
+plot(incid_dc~as.numeric(jour),data=cov19n,xaxt="n",xlab="",ylab="Décès/jour",las=1,type="h",main="Décès journaliers hospitaliers")
+axis(1,at=as.numeric(cov19$jour),labels=as.POSIXlt(cov19$jour)$mday)
+mtext(paste0("Total: ",sum(cov19n$incid_dc)),3,line=-1.51,adj=0,at=1584572400)
+
+
+##### ancienne présentation < 18/04/20
+
 
 
 par(mfrow=c(2,2))
