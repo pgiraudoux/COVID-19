@@ -1,0 +1,152 @@
+---
+title: "Flux viral et structure d'âge de la population"
+author: "PG"
+date: "`r format(Sys.time(), '%d %B %Y %H:%M')`"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache=TRUE)
+# knitr::opts_chunk$set(fig.height=8)
+# knitr::opts_chunk$set(fig.width=8)
+knitr::opts_chunk$set(echo=FALSE)
+```
+
+
+# Position du problème
+
+La vision que chaque pays peut avoir de la distribution de COVID-19 dépend largement de la manière dont les cas sont détectés/confirmés et ensuite rapportés. La sévérité de la COVID-19 apparait liée à l'âge et à des polymorbidités associées pour un âge donné, ce qui, selon le système de détection mis en oeuvre tend à donner une image déformée du flux viral dans la population.
+
+Dans le pire des cas (d'un point de vue épidémiologique), la détection/confirmation passe par le filtre hospitalier, c'est à dire se limite aux patients les plus gravement affectés. C'est le cas général.
+
+A ma connaissance, aucun pays n'a conduit un dépistage sur un échantillon représentatif de la population, et même dans les rares cas où la détection ne s'est pas limitée aux patients très symptomatiques, la documentation actuelle ne permet pas de bien connaître les critères d'inclusion, et la représentatitivité du panel dépisté par rapport à la population.
+
+Deux pays seulement ayant pratiqué un dépistage actif relativement massif, visant à isoler les cas identifiés, ont mis leurs données en accès libre: l'Islande et la Corée du Nord. S'y ajoute un rapport chinois encore plus mystérieux sur la manière dont le panel a été constitué.
+
+Un article, de plus, vient de paraitre pointant l'effet des structures d'âge de population sur la perception qu'on peut avoir de l'épidémie.
+
+Le but de ce rapport est de comparer le profil d'âge des patients de ces pays à celui de la France.
+
+# Les articles repérés
+
+## Chine
+
+Sun, K., Chen, J., Viboud, C., 2020. Early epidemiological analysis of the coronavirus disease 2019 outbreak based on crowdsourced data: a population-level observational study. The Lancet Digital Health 2, e201–e208. https://doi.org/10.1016/S2589-7500(20)30026-1
+
+*In this population-level observational study, we used crowdsourced reports from DXY.cn, a social network for Chinese physicians, health-care professionals, pharmacies, and health-care facilities established in 2000. This online platform is providing real-time coverage of the COVID-19 outbreak in China, obtained by collating and curating reports from news media, government television, and national and provincial health agencies. The information reported includes time-stamped cumulative counts of COVID-19 infections, outbreak maps, and realtime streaming of health authority announcements in Chinese (directly or through state media).8 Every report is linked to an online source, which can be accessed formore detailed information on individual cases.*
+
+<!-- ![](./Age structure/China.PNG) -->
+
+```{r, out.width = "500px"}
+knitr::include_graphics("./Age structure/China.PNG")
+```
+
+## Effet des structures d'âge
+
+Dowd, J.B., Andriano, L., Brazel, D.M., Rotondi, V., Block, P., Ding, X., Liu, Y., Mills, M.C., 2020. Demographic science aids in understanding the spread and fatality rates of COVID-19. PNAS. https://doi.org/10.1073/pnas.2004911117
+
+Summary: *Because deaths have been concentrated at older ages, we highlight the important role of demography, particularly, how the age structure of a population may help explain differences in fatality rates across countries and how transmission unfolds. We examine the role of age structure in deaths thus far in Italy and South Korea and illustrate how the pandemic could unfold in populations with similar population sizes but different age structures, showing a dramatically higher burden of mortality in countries with older versus younger populations. **This powerful interaction of demography and current age-specific mortality for COVID-19 suggests that social distancing and other policies to slow transmission should consider the age composition of local and national contexts as well as intergenerational interactions**. We also call for countries to provide case and fatality data disaggregated by age and sex to improve real-time targeted forecasting of hospitalization and critical care needs.*
+
+
+![](./Age structure/ItalyNigeria.PNG)
+
+
+## Comparaison Islande autres pays d'Europe
+
+https://medium.com/@ali_razavian/covid-19-from-a-data-scientists-perspective-95bd4e84843b
+
+*The asymptomatic cases are significantly more than the symptomatic cases and that leaves huge dark data that overshadows every analysis. the detected cases (the people who actually show symptoms) are biased towards the elderly and makes it impossible to estimate the total affected cases.*
+
+![](./Age structure/IslandComparison.PNG)
+
+# Données brutes
+
+Dans aucun des cas cités ci-dessus, et des données utilisées plus bas, les critères qui permettraient de penser que le panel étudié est représentatif de la population ne sont clairs, et aucun des sites/articles ne mentionne les termes "mass screening" ou "random sample".
+
+On en est réduit à spéculer sur le fait que les échantillons islandais et coréens sont moins biaisés que les autres, parce que les pays ont été réputés pour pratiquer des dépistages actifs en vue  de confiner les cas positifs, alors que les autres pays, ont rapidement (très tôt dans l'épidémie) adopté une politique de confirmation sur les seuls cas hospitalisés (ex. en France, dès que le stade 2 a été officiellement dépassé début mars). 
+
+## Islande
+[https://www.covid.is/data](https://www.covid.is/data)
+
+```{r}
+ageI<-read.csv("./age structure/Sheet 1.csv")
+names(ageI)<-c("age","active","recov","death")
+ageI[is.na(ageI)]<-0
+ageI
+
+# row.names(ageI)<-c("1-17",as.character(ageI[5:13,1]))
+
+barplot(t(ageI[,2:3]),names.arg=ageI[,1], las=1,main="Islande")
+legend(x=12,y=350,legend=c("recovered","active"),fill=c("grey","black"),bty="n")
+
+Ikids<-sum(ageI[1:4,2:3])/sum(ageI[,2:3]) # proportion des < 18
+Iseniors<-sum(ageI[9:13,2:3])/sum(ageI[,2:3]) # proportion des >= 60
+
+```
+
+Dans ce panel, les moins de 18 ans constituent `r round(Ikids*100,0)`% de la population, les 60 ans et plus `r round(Iseniors*100,0)`% et donc les âges intermédiaires `r round((1-Ikids-Iseniors)*100,0)`%.
+
+
+
+## Corée du sud
+
+[https://www.covid.is/data](https://www.covid.is/data)
+
+
+```{r}
+ageK<-read.delim("./age structure/SouthKorea.txt")[1:9,1:3]
+ageK<-ageK[9:1,]
+ageK
+
+barplot(ageK[,2],names.arg=ageK[,1], las=1,main="Corée du sud (cas)")
+
+Kkids<-sum(ageK[1:2,2])/sum(ageK[,2]) # proportion des < 20
+Kseniors<-sum(ageK[7:9,2])/sum(ageK[,2]) # proportion des >= 60
+
+```
+
+Dans ce panel, les moins de 20 ans constituent `r round(Kkids*100,0)`% de la population, les 60 ans et plus `r round(Kseniors*100,0)`% et donc les âges intermédiaires `r round((1-Kkids-Kseniors)*100,0)`%.
+
+## France (2020-04-18)
+
+[https://www.data.gouv.fr/fr/datasets/donnees-hospitalieres-relatives-a-lepidemie-de-covid-19/#_](https://www.data.gouv.fr/fr/datasets/donnees-hospitalieres-relatives-a-lepidemie-de-covid-19/#_)
+
+
+
+
+```{r}
+ageF<-read.csv("https://www.data.gouv.fr/fr/datasets/r/08c18e08-6780-452d-9b8c-ae244ad529b3",sep=";")
+# head(ageF)
+# tail(ageF)
+names(ageF)[2]<-"age"
+ageF<-ageF[ageF$age!=0,]
+ageF18<-aggregate(ageF[ageF$jour=="2020-04-18",c(4,6,7)],by=list(ageF$age[ageF$jour=="2020-04-18"]),sum)
+catF<-paste0(ageF18[,1]-9,"-",ageF18[,1])
+catF[c(1,length(catF))]<-c("<10","\u226590")
+rownames(ageF18)<-catF
+ageF18[,2:3]
+barplot(t(ageF18[,2:3]),names.arg=catF,main="France 2020-04-18",las=1)
+legend(x=0,y=12000,legend=c("retours à domicile","hospitalisés"),fill=c("grey","black"),bty="n")
+
+Fkids<-sum(ageF18[1:2,2:3])/sum(ageF18[,2:3]) # proportion des < 20
+Fseniors<-sum(ageF18[7:10,2:3])/sum(ageF18[,2:3]) # proportion des >= 60
+
+
+```
+
+On constate ici un biais majeur vers les classes d'âge agées (les 60 ans et plus sont `r  round(Fseniors*100,0)`%, les moins de 20 ans `r  round(Fkids*100,0)`%, et les âges intermédiaires `r  round((1-Fkids-Fseniors)*100,0)`%,). C'est le résultat du mode de confirmation des COVID-19: ne sont confirmés que les cas qui passent à l'hopital, les plus graves, donc avec une sur-représentation des plus âgés qui sont les plus vulnérables.  Cette distribution ne représente pas le flux viral réel dans la population, le nombre d'asymptomatiques ou pauci-symptomatiques (mais pourtant infectants) n'étant pas pris en compte ici.
+
+# Conclusion
+
+Même si on ne peut attribuer aux dépistages islandais et coréen la valeur de gold-standard qu'aurait eu un échantillannage raisonné de la population, idéalement sous forme de random sampling, il n'en reste pas moins que l'image qu'ils donnent de la distribution du virus dans la population est certainement moins biaisée que le rapportage français.
+
+Si l'on se projette sur le déconfinement de mai, et en se basant sur les seuls chiffres moins baisés disponibles, coréens et islandais, on peut en tirer les conclusions suivantes:
+
+* l'ouverture des écoles-collèges-lycées permettra la circulation libre de l'ordre de 6-10% environ du flux viral (il me semble peu probable que les mesures de distanciations soient efficaces quand il s'agit de classes d'âge dures à contrôler; maternelles, primaires, collèges notamment)
+
+* l'isolement des seniors ≥ 60ans, incitatif si j'ai bien compris, concernerait de 16-24% du flux viral
+
+* et donc le déconfinement des autres groupes d'âge toucherait 70-74% du flux viral.
+
+Autant dire que les consignes de distanciation sociale et autres mesures d'hygiène préventive devront non seulement être respectées, mais probablement considérablement renforcées, si on ne veut pas se retrouver avec une deuxième vague dès juin-juillet.

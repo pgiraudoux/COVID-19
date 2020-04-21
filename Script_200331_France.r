@@ -5,6 +5,9 @@
 # url1<-"https://static.data.gouv.fr/resources/donnees-hospitalieres-relatives-a-lepidemie-de-covid-19/20200330-190005/donnees-hospitalieres-covid19-2020-03-30-19h00.csv"
 
 url1<-"https://www.data.gouv.fr/fr/datasets/r/63352e38-d353-4b54-bfd1-f1b3ee1cabd7" # url stable
+
+url2<-"https://www.data.gouv.fr/fr/datasets/r/6fadff46-9efd-4c53-942a-54aca783c30c"
+
 cov19brut<-read.table(url1,sep=";",header=TRUE)
 head(cov19brut)
 tail(cov19brut)
@@ -12,13 +15,11 @@ cov19<-cov19brut[cov19brut$sexe==0,]
 cov19<-aggregate(cov19[,4:7],by=list(jour=cov19$jour),sum)
 cov19$jour<-strptime(cov19$jour,format="%Y-%m-%d")
 
-url2<-"https://www.data.gouv.fr/fr/datasets/r/6fadff46-9efd-4c53-942a-54aca783c30c"
 cov19n<-read.table(url2,sep=";",header=TRUE)
 cov19n<-aggregate(cov19n[,3:6],by=list(jour=cov19n$jour),sum)
 head(cov19n)
 tail(cov19n)
 cov19n$jour<-strptime(cov19n$jour,format="%Y-%m-%d")
-
 
 
 
