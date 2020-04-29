@@ -32,7 +32,7 @@ axis(1,at=as.numeric(cov19$jour)[2:length(as.numeric(cov19$jour))],labels=as.POS
 plot(incid_hosp-incid_rad~as.numeric(jour),data=cov19n,xaxt="n",xlab="",ylab="Entrées-sorties",las=1,type="h",main="(Entrée-sorties)/jour")
 axis(1,at=as.numeric(cov19$jour)[2:length(as.numeric(cov19$jour))],labels=as.POSIXlt(cov19$jour)$mday[2:length(as.numeric(cov19$jour))])  
 
-plot(hosp~as.numeric(jour),data=cov19,xaxt="n",xlab="",ylab="Hospitalisés",las=1,type="l",main="Nombre d'hospitalisés")
+plot(hosp/1000~as.numeric(jour),data=cov19,xaxt="n",xlab="",ylab="Hospitalisés x 1000",las=1,type="l",main="Nombre d'hospitalisés")
 axis(1,at=as.numeric(cov19$jour),labels=as.POSIXlt(cov19$jour)$mday)
 
 
@@ -40,7 +40,9 @@ plot(incid_dc~as.numeric(jour),data=cov19n,xaxt="n",xlab="",ylab="Décès/jour",la
 axis(1,at=as.numeric(cov19$jour),labels=as.POSIXlt(cov19$jour)$mday)
 mtext(paste0("Total: ",sum(cov19n$incid_dc)),3,line=-1.51,adj=0,at=1584572400)
 
-
+cov19n$incid_hosp
+cov19n$incid_dc
+  
 ##### ancienne présentation < 18/04/20
 
 
