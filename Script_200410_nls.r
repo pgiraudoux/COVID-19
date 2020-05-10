@@ -17,7 +17,7 @@ ex<-list(Chad=Chad,Algeria=Algeria,Uganda=Uganda)
 save(ex,file="Examples.Rdata")
 
 
-pays<-ecdc[ecdc$countriesAndTerritories=="Namibia",]
+pays<-ecdc[ecdc$countriesAndTerritories=="France",]
 pays<-pays[order(pays$dateRep),]
 pays
 firstcase<-which(cumsum(pays$cases)>=start)[1]

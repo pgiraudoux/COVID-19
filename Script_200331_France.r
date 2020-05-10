@@ -11,6 +11,7 @@ url2<-"https://www.data.gouv.fr/fr/datasets/r/6fadff46-9efd-4c53-942a-54aca783c3
 cov19brut<-read.table(url1,sep=";",header=TRUE)
 head(cov19brut)
 tail(cov19brut)
+
 cov19<-cov19brut[cov19brut$sexe==0,]
 cov19<-aggregate(cov19[,4:7],by=list(jour=cov19$jour),sum)
 cov19$jour<-strptime(cov19$jour,format="%Y-%m-%d")
@@ -20,8 +21,6 @@ cov19n<-aggregate(cov19n[,3:6],by=list(jour=cov19n$jour),sum)
 head(cov19n)
 tail(cov19n)
 cov19n$jour<-strptime(cov19n$jour,format="%Y-%m-%d")
-
-
 
 par(mfrow=c(2,2))
 
@@ -43,6 +42,33 @@ mtext(paste0("Total: ",sum(cov19n$incid_dc)),3,line=-1.51,adj=0,at=1584572400)
 cov19n$incid_hosp
 cov19n$incid_dc
   
+
+
+ecdc<-read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv")
+head(ecdc[ecdc$countriesAndTerritories=="France",])
+tail(ecdc[ecdc$countriesAndTerritories=="France",])
+names(ecdc)[1]<-"dateRep"
+ecdc$dateRep<-strptime(ecdc$dateRep,format="%d/%m/%Y")
+
+
+pays<-ecdc[ecdc$countriesAndTerritories=="France",]
+pays<-pays[order(pays$dateRep),]
+pays
+firstcase<-which(cumsum(pays$cases)>=start)[1]
+
+par(mfrow=c(2,2))
+
+plot(pays$dateRep[firstcase:length(pays$cases)],cumsum(pays$cases)[firstcase:length(pays$cases)]/1000,las=1,type="l",las=1,xlab="",ylab="cases",main="n cas x 1000")
+
+
+plot(pays$dateRep[firstcase:length(pays$cases)],pays$cases[firstcase:length(pays$cases)],las=1,type="l",las=1,xlab="",ylab="cases",main = "N cas/jour")
+
+plot(pays$dateRep[firstcase:length(pays$cases)],cumsum(pays$deaths)[firstcase:length(pays$cases)]/1000,las=1,type="l",las=1,xlab="",ylab="cases", main="N morts x 1000")
+
+plot(pays$dateRep[firstcase:length(pays$cases)],pays$deaths[firstcase:length(pays$cases)],las=1,type="l",las=1,xlab="",ylab="cases",main="N morts/jour")
+
+
+pays[,c(1,5)]
 ##### ancienne présentation < 18/04/20
 
 
