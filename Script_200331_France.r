@@ -11,10 +11,10 @@ url2<-"https://www.data.gouv.fr/fr/datasets/r/6fadff46-9efd-4c53-942a-54aca783c3
 cov19brut<-read.table(url1,sep=";",header=TRUE)
 head(cov19brut)
 tail(cov19brut)
-
 cov19<-cov19brut[cov19brut$sexe==0,]
 cov19<-aggregate(cov19[,4:7],by=list(jour=cov19$jour),sum)
 cov19$jour<-strptime(cov19$jour,format="%Y-%m-%d")
+
 
 cov19n<-read.table(url2,sep=";",header=TRUE)
 cov19n<-aggregate(cov19n[,3:6],by=list(jour=cov19n$jour),sum)
@@ -68,7 +68,8 @@ plot(pays$dateRep[firstcase:length(pays$cases)],cumsum(pays$deaths)[firstcase:le
 plot(pays$dateRep[firstcase:length(pays$cases)],pays$deaths[firstcase:length(pays$cases)],las=1,type="l",las=1,xlab="",ylab="cases",main="N morts/jour")
 
 
-pays[,c(1,5)]
+pays[,c("dateRep","cases")]
+pays[,c("dateRep","deaths")]
 ##### ancienne présentation < 18/04/20
 
 
