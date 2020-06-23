@@ -9,6 +9,7 @@ url1<-"https://www.data.gouv.fr/fr/datasets/r/63352e38-d353-4b54-bfd1-f1b3ee1cab
 url2<-"https://www.data.gouv.fr/fr/datasets/r/6fadff46-9efd-4c53-942a-54aca783c30c"
 
 cov19brut<-read.table(url1,sep=";",header=TRUE)
+
 head(cov19brut)
 tail(cov19brut)
 cov19<-cov19brut[cov19brut$sexe==0,]
