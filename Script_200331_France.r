@@ -11,9 +11,11 @@ url2<-"https://www.data.gouv.fr/fr/datasets/r/6fadff46-9efd-4c53-942a-54aca783c3
 cov19brut<-read.table(url1,sep=";",header=TRUE)
 
 head(cov19brut)
+
 tail(cov19brut)
 cov19<-cov19brut[cov19brut$sexe==0,]
 cov19<-aggregate(cov19[,4:7],by=list(jour=cov19$jour),sum)
+
 cov19$jour<-strptime(cov19$jour,format="%Y-%m-%d")
 
 
@@ -27,17 +29,17 @@ par(mfrow=c(2,2))
 
 
 plot(incid_hosp~as.numeric(jour),data=cov19n,xaxt="n",xlab="",ylab="Entrées/jour",las=1,type="h",main="Hôpital: nombre d'entrées/jour")
-axis(1,at=as.numeric(cov19$jour)[2:length(as.numeric(cov19$jour))],labels=as.POSIXlt(cov19$jour)$mday[2:length(as.numeric(cov19$jour))])  
+axis(1,at=as.numeric(cov19$jour)[2:length(as.numeric(cov19$jour))],labels=as.POSIXlt(cov19$jour)$yday[2:length(as.numeric(cov19$jour))])  
 
 plot(incid_hosp-incid_rad~as.numeric(jour),data=cov19n,xaxt="n",xlab="",ylab="Entrées-sorties",las=1,type="h",main="(Entrée-sorties)/jour")
-axis(1,at=as.numeric(cov19$jour)[2:length(as.numeric(cov19$jour))],labels=as.POSIXlt(cov19$jour)$mday[2:length(as.numeric(cov19$jour))])  
+axis(1,at=as.numeric(cov19$jour)[2:length(as.numeric(cov19$jour))],labels=as.POSIXlt(cov19$jour)$yday[2:length(as.numeric(cov19$jour))])  
 
 plot(hosp/1000~as.numeric(jour),data=cov19,xaxt="n",xlab="",ylab="Hospitalisés x 1000",las=1,type="l",main="Nombre d'hospitalisés")
-axis(1,at=as.numeric(cov19$jour),labels=as.POSIXlt(cov19$jour)$mday)
+axis(1,at=as.numeric(cov19$jour),labels=as.POSIXlt(cov19$jour)$yday)
 
 
 plot(incid_dc~as.numeric(jour),data=cov19n,xaxt="n",xlab="",ylab="Décès/jour",las=1,type="h",main="Décès journaliers hospitaliers")
-axis(1,at=as.numeric(cov19$jour),labels=as.POSIXlt(cov19$jour)$mday)
+axis(1,at=as.numeric(cov19$jour),labels=as.POSIXlt(cov19$jour)$yday)
 mtext(paste0("Total: ",sum(cov19n$incid_dc)),3,line=-1.51,adj=0,at=1584572400)
 
 cov19n$incid_hosp
@@ -71,6 +73,11 @@ plot(pays$dateRep[firstcase:length(pays$cases)],pays$deaths[firstcase:length(pay
 
 pays[,c("dateRep","cases")]
 pays[,c("dateRep","deaths")]
+
+sum(pays[(nrow(pays)-7):nrow(pays),"deaths"])
+
+
+
 ##### ancienne présentation < 18/04/20
 
 
