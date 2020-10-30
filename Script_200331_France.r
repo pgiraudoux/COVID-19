@@ -169,5 +169,7 @@ tail(ecdc[ecdc$countriesAndTerritories=="France",])
 # write.delim(data.frame(country=unique(ecdc$countriesAndTerritories)),"Countries.txt")
 
 
+bilsex<-aggregate(cov19brut[cov19brut$sex!=0,"hosp",],by=list(sex=cov19brut[cov19brut$sex!=0,"sexe",]),sum)
 
+bilsex$x/sum(bilsex$x)
 
