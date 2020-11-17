@@ -8,43 +8,50 @@ url1<-"https://www.data.gouv.fr/fr/datasets/r/63352e38-d353-4b54-bfd1-f1b3ee1cab
 
 url2<-"https://www.data.gouv.fr/fr/datasets/r/6fadff46-9efd-4c53-942a-54aca783c30c"
 
-cov19brut<-read.table(url1,sep=";",header=TRUE)
-
-head(cov19brut)
-
-tail(cov19brut)
-cov19<-cov19brut[cov19brut$sexe==0,]
-cov19<-aggregate(cov19[,4:7],by=list(jour=cov19$jour),sum)
-
-cov19$jour<-strptime(cov19$jour,format="%Y-%m-%d")
+# cov19brut<-read.table(url1,sep=";",header=TRUE)
+# head(cov19brut)
+# tail(cov19brut)
+# cov19<-cov19brut[cov19brut$sexe==0,]
+# cov19<-aggregate(cov19[,4:7],by=list(jour=cov19$jour),sum)
+# cov19$jour<-strptime(cov19$jour,format="%Y-%m-%d")
 
 
-cov19n<-read.table(url2,sep=";",header=TRUE)
-cov19n<-aggregate(cov19n[,3:6],by=list(jour=cov19n$jour),sum)
+cov19<-read.table(url2,sep=";",header=TRUE)
+# cov19n<-aggregate(cov19[,3:6],by=list(jour=cov19$jour),sum)
+cov19n<-cov19[cov19$dep=="25",]
 head(cov19n)
 tail(cov19n)
 cov19n$jour<-strptime(cov19n$jour,format="%Y-%m-%d")
 
+span<-40/length(cov19n$jour)
+temps<-c(cov19n[1,2],cov19n[nrow(cov19n),2])
 par(mfrow=c(2,2))
 
 
-plot(incid_hosp~as.numeric(jour),data=cov19n,xaxt="n",xlab="",ylab="Entrées/jour",las=1,type="h",main="Hôpital: nombre d'entrées/jour")
-axis(1,at=as.numeric(cov19$jour)[2:length(as.numeric(cov19$jour))],labels=as.POSIXlt(cov19$jour)$yday[2:length(as.numeric(cov19$jour))])  
-
-plot(incid_hosp-incid_rad~as.numeric(jour),data=cov19n,xaxt="n",xlab="",ylab="Entrées-sorties",las=1,type="h",main="(Entrée-sorties)/jour")
-axis(1,at=as.numeric(cov19$jour)[2:length(as.numeric(cov19$jour))],labels=as.POSIXlt(cov19$jour)$yday[2:length(as.numeric(cov19$jour))])  
-
-plot(hosp/1000~as.numeric(jour),data=cov19,xaxt="n",xlab="",ylab="Hospitalisés x 1000",las=1,type="l",main="Nombre d'hospitalisés")
-axis(1,at=as.numeric(cov19$jour),labels=as.POSIXlt(cov19$jour)$yday)
+plot(cov19n$jour,cov19n$incid_hosp,xlab="",ylab="Entrées/jour",las=1,type="h",main=paste0("Hôpital: nombre d'entrées/jour\n",format(temps[1],"%d %b")," - ",format(temps[2],"%d %b")))
+loe<-loess(cov19n$incid_hosp~as.numeric(cov19n$jour),span=span)
+lines(loe$fitted~as.numeric(cov19n$jour),col="red",lwd=2)
 
 
-plot(incid_dc~as.numeric(jour),data=cov19n,xaxt="n",xlab="",ylab="Décès/jour",las=1,type="h",main="Décès journaliers hospitaliers")
-axis(1,at=as.numeric(cov19$jour),labels=as.POSIXlt(cov19$jour)$yday)
-mtext(paste0("Total: ",sum(cov19n$incid_dc)),3,line=-1.51,adj=0,at=1584572400)
+plot(cov19n$jour,cov19n$incid_hosp-cov19n$incid_rad,xlab="",ylab="Entrées-sorties",las=1,type="h",main="(Entrées-sorties)/jour")
+
+# plot(cov19n$jour,cumsum(cov19n$incid_hosp)-cumsum(cov19n$incid_rad),xlab="",ylab="Nombre d'hospitalisés",las=1,type="l",main="Nombre d'hospitalisés")
+
+
+plot(cov19n$jour,cov19n$incid_rea,xlab="",ylab="Entrées/jour",las=1,type="h",main="Nombre d'entrées\nen réanimation/jour")
+loe<-loess(cov19n$incid_rea~as.numeric(cov19n$jour),span=span)
+lines(loe$fitted~as.numeric(cov19n$jour),col="red",lwd=2)
+
+
+plot(cov19n$jour,cov19n$incid_dc,xlab="",ylab="Décès/jour",las=1,type="h",main="Décès journaliers hospitaliers")
+ 
+# mtext(paste0("Total: ",sum(cov19n$incid_dc)),3,line=-1.51,adj=0,at=1584572400)
 
 cov19n$incid_hosp
 cov19n$incid_dc
-  
+
+cumsum(cov19n$incid_hosp)
+cumsum(cov19n$incid_rad)
 
 
 ecdc<-read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv")
@@ -52,9 +59,9 @@ head(ecdc[ecdc$countriesAndTerritories=="France",])
 tail(ecdc[ecdc$countriesAndTerritories=="France",])
 names(ecdc)[1]<-"dateRep"
 ecdc$dateRep<-strptime(ecdc$dateRep,format="%d/%m/%Y")
+unique(ecdc$countriesAndTerritories)
 
-
-pays<-ecdc[ecdc$countriesAndTerritories=="France",]
+pays<-ecdc[ecdc$countriesAndTerritories=="Switzerland",]
 pays<-pays[order(pays$dateRep),]
 pays
 firstcase<-which(cumsum(pays$cases)>=start)[1]
@@ -62,14 +69,18 @@ firstcase<-which(cumsum(pays$cases)>=start)[1]
 par(mfrow=c(2,2))
 
 plot(pays$dateRep[firstcase:length(pays$cases)],cumsum(pays$cases)[firstcase:length(pays$cases)]/1000,las=1,type="l",las=1,xlab="",ylab="cases",main="n cas x 1000")
-
+abline(v=1590962400, col="green", lwd=2)
 
 plot(pays$dateRep[firstcase:length(pays$cases)],pays$cases[firstcase:length(pays$cases)],las=1,type="l",las=1,xlab="",ylab="cases",main = "N cas/jour")
+loe<-loess(pays$cases[firstcase:length(pays$cases)]~as.numeric(pays$dateRep[firstcase:length(pays$cases)]),span=span)
+lines(loe$fitted~as.numeric(pays$dateRep[firstcase:length(pays$cases)]),col="red",lwd=2)
+abline(v=1590962400, col="green", lwd=2)
 
 plot(pays$dateRep[firstcase:length(pays$cases)],cumsum(pays$deaths)[firstcase:length(pays$cases)]/1000,las=1,type="l",las=1,xlab="",ylab="cases", main="N morts x 1000")
 
 plot(pays$dateRep[firstcase:length(pays$cases)],pays$deaths[firstcase:length(pays$cases)],las=1,type="l",las=1,xlab="",ylab="cases",main="N morts/jour")
-
+loe<-loess(pays$deaths[firstcase:length(pays$cases)]~as.numeric(pays$dateRep[firstcase:length(pays$cases)]),span=span)
+lines(loe$fitted~as.numeric(pays$dateRep[firstcase:length(pays$cases)]),col="red",lwd=2)
 
 pays[,c("dateRep","cases")]
 pays[,c("dateRep","deaths")]
@@ -77,7 +88,7 @@ pays[,c("dateRep","deaths")]
 sum(pays[(nrow(pays)-7):nrow(pays),"deaths"])
 
 
-
+data.frame(date=pays$dateRep[firstcase:length(pays$cases)],num=as.numeric(pays$dateRep[firstcase:length(pays$cases)]))
 ##### ancienne présentation < 18/04/20
 
 
