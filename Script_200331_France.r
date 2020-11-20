@@ -17,6 +17,7 @@ url2<-"https://www.data.gouv.fr/fr/datasets/r/6fadff46-9efd-4c53-942a-54aca783c3
 
 
 cov19<-read.table(url2,sep=";",header=TRUE)
+cov19<-cov19[nchar(cov19$dep)<3,]
 # cov19n<-aggregate(cov19[,3:6],by=list(jour=cov19$jour),sum)
 cov19n<-cov19[cov19$dep=="25",]
 head(cov19n)
@@ -24,7 +25,7 @@ tail(cov19n)
 cov19n$jour<-strptime(cov19n$jour,format="%Y-%m-%d")
 
 span<-40/length(cov19n$jour)
-temps<-c(cov19n[1,2],cov19n[nrow(cov19n),2])
+temps<-c(cov19n$jour[1],cov19n$jour[nrow(cov19n)])
 par(mfrow=c(2,2))
 
 
