@@ -16,6 +16,13 @@ url2<-"https://www.data.gouv.fr/fr/datasets/r/6fadff46-9efd-4c53-942a-54aca783c3
 # cov19$jour<-strptime(cov19$jour,format="%Y-%m-%d")
 
 
+conf1<-strptime("17/03/2020",format="%d/%m/%Y")
+deconf1<-strptime("11/05/2020",format="%d/%m/%Y")
+conf2<-strptime("30/10/2020",format="%d/%m/%Y")
+deconf2<-strptime("28/11/2020",format="%d/%m/%Y")
+couvfeu18<-strptime("02/01/2021",format="%d/%m/%Y")
+sequence<-c(conf1,deconf1,conf2,deconf2,couvfeu18)
+
 cov19<-read.table(url2,sep=";",header=TRUE)
 cov19<-cov19[nchar(cov19$dep)<3,]
 # cov19n<-aggregate(cov19[,3:6],by=list(jour=cov19$jour),sum)
@@ -25,15 +32,31 @@ tail(cov19n)
 cov19n$jour<-strptime(cov19n$jour,format="%Y-%m-%d")
 
 span<-40/length(cov19n$jour)
+
 temps<-c(cov19n$jour[1],cov19n$jour[nrow(cov19n)])
 par(mfrow=c(2,2))
 
+# par(mfrow=c(1,1))
+def<-par()$mar
+par(mar=c(5.1,4.1,4.1,4.1))
 
 plot(cov19n$jour,cov19n$incid_hosp,xlab="",ylab="Entrées/jour",las=1,type="h",main=paste0("Hôpital: nombre d'entrées/jour\n",format(temps[1],"%d %b")," - ",format(temps[2],"%d %b")))
+# rect(as.numeric(strptime("24/12/2020",format="%d/%m/%Y")),min(cov19n$incid_hosp), as.numeric(strptime("01/01/2021",format="%d/%m/%Y")),max(cov19n$incid_hosp)+10,col="red",border=NA)
 loe<-loess(cov19n$incid_hosp~as.numeric(cov19n$jour),span=span)
 lines(loe$fitted~as.numeric(cov19n$jour),col="red",lwd=2)
+abline(v=as.numeric(sequence),col=c("red","green","red","green","orange"))
+mtext(c(rep(c("conf","déconf"),2),"cf18"),at=as.numeric(sequence),col=c("red","green","red","green","orange"))
+segments(as.numeric(strptime("19/12/2020",format="%d/%m/%Y")), 65,as.numeric(strptime("3/1/2021",format="%d/%m/%Y")),65,col="green")
+segments(as.numeric(strptime("19/12/2020",format="%d/%m/%Y")),-10,as.numeric(strptime("19/12/2020",format="%d/%m/%Y")),65,lty=2,col="green")
+text(x=(as.numeric(strptime("19/12/2020",format="%d/%m/%Y"))+as.numeric(strptime("3/1/2021",format="%d/%m/%Y")))/2,y=65,labels="Vacances",col="green",pos=3)
 
+valtr<-((Y-min(Y))/(max(Y)-min(Y)))*30+30
+lines(X,valtr,col="red",lty=2,lwd=2)
+axis(4,at=c(min(valtr),(min(valtr)+max(valtr))/2,max(valtr)),labels=round(c(min(Y),(min(Y)+max(Y))/2,max(Y)),0),las=1,col="red",col.ticks="red",col.axis="red")
+mtext("Incidence ARS",4,3,col="red",at=(min(valtr)+max(valtr))/2)
 
+     
+  
 plot(cov19n$jour,cov19n$incid_hosp-cov19n$incid_rad,xlab="",ylab="Entrées-sorties",las=1,type="h",main="(Entrées-sorties)/jour")
 
 # plot(cov19n$jour,cumsum(cov19n$incid_hosp)-cumsum(cov19n$incid_rad),xlab="",ylab="Nombre d'hospitalisés",las=1,type="l",main="Nombre d'hospitalisés")
@@ -185,3 +208,50 @@ bilsex<-aggregate(cov19brut[cov19brut$sex!=0,"hosp",],by=list(sex=cov19brut[cov1
 
 bilsex$x/sum(bilsex$x)
 
+
+#### Comparaison avec incidence ARS
+
+
+library(jpeg)
+graph<-readJPEG("Capture.JPG")
+res <- dim(graph)[1:2]
+long=1500
+haut<-long*res[1]/res[2]
+plot(x=c(0,1500),y=c(0,877))
+rasterImage(graph,0,0,long,haut)
+off<-139.5965
+## 800 > 126.783 mm  (max = 123.826 mm)
+maxi<-800/126.783*123.826
+coords<-locator()
+coords$y<-coords$y-off
+
+Y<-maxi/max(coords$y)*coords$y
+
+debut<-strptime("30/10/2020",format="%d/%m/%Y")
+fin<-strptime("10/01/2021",format="%d/%m/%Y")
+tmp<-coords$x*(fin-debut)/(max(coords$x)-min(coords$x))
+
+debut0<-debut
+debut0$mday <- debut$mday - 10
+X<-debut0+tmp
+
+
+par(mfrow=c(1,1))
+def<-par()$mar
+par(mar=c(5.1,4.1,4.1,4.1))
+
+plot(cov19n$jour[167:length(cov19n$jour)],cov19n$incid_hosp[167:length(cov19n$jour)],ylim=c(0,max(cov19n$incid_hosp)),xlab="",ylab="Entrées/jour",las=1,type="h",main=paste0("Hôpital: nombre d'entrées/jour\n","1 sept."," - ",format(temps[2],"%d %b")))
+# rect(as.numeric(strptime("24/12/2020",format="%d/%m/%Y")),min(cov19n$incid_hosp), as.numeric(strptime("01/01/2021",format="%d/%m/%Y")),max(cov19n$incid_hosp)+10,col="red",border=NA)
+loe<-loess(cov19n$incid_hosp~as.numeric(cov19n$jour),span=span)
+lines(loe$fitted~as.numeric(cov19n$jour),col="red",lwd=2)
+abline(v=as.numeric(sequence),col=c("red","green","red","green","orange"))
+mtext(c(rep(c("conf","déconf"),2),"cf18"),at=as.numeric(sequence),col=c("red","green","red","green","orange"))
+segments(as.numeric(strptime("19/12/2020",format="%d/%m/%Y")), 65,as.numeric(strptime("3/1/2021",format="%d/%m/%Y")),65,col="green")
+segments(as.numeric(strptime("19/12/2020",format="%d/%m/%Y")),-10,as.numeric(strptime("19/12/2020",format="%d/%m/%Y")),65,lty=2,col="green")
+text(x=(as.numeric(strptime("19/12/2020",format="%d/%m/%Y"))+as.numeric(strptime("3/1/2021",format="%d/%m/%Y")))/2,y=65,labels="Vacances",col="green",pos=3)
+
+valtr<-((Y-min(Y))/(max(Y)-min(Y)))*30+30
+lines(X,valtr,col="red",lty=2,lwd=2)
+axis(4,at=c(min(valtr),(min(valtr)+max(valtr))/2,max(valtr)),labels=round(c(min(Y),(min(Y)+max(Y))/2,max(Y)),0),las=1,col="red",col.ticks="red",col.axis="red")
+  mtext("Incidence ARS",4,3,col="red",at=(min(valtr)+max(valtr))/2)
+ 

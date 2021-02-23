@@ -10,17 +10,18 @@ cov19age<-read.table(urlage,sep=";",header=TRUE)
 cov19age<-cov19age[cov19age$cl_age90!=0,]
 cov19age<-cov19age[cov19age$reg>=11,]
 
-
+cov19age<-cov19age[cov19age$reg==27,]
 
 sum(cov19age[cov19age$jour=="2020-03-20",4])
 
 
 
 head(cov19age,20)
+
 unique(cov19age$cl_age90)
 unique(cov19age$reg)
 
-aglim<-69
+aglim<-59
 suplim<-cov19age$cl_age90>=aglim
 
 legd<-c(paste0(">= ",aglim," ans"),paste0("< ",aglim," ans"))
@@ -33,10 +34,12 @@ greenhorns<-cov19agr[!cov19agr$age,]
 oldtimers<-cov19agr[cov19agr$age,]
 
 
+par(mfrow=c(1,1))
 
-plot(range(cov19agr$jour),c(0,max(oldtimers$hosp+greenhorns$hosp)/1000),xlab="",ylab="Nombre",las=1,type="n",main=paste0("Nombre de patients hospitalisés (x 1000)\n",format(temps[1],"%d %b")," - ",format(temps[2],"%d %b")))
+plot(range(cov19agr$jour),c(0,max(oldtimers$hosp+greenhorns$hosp)/1000),xlab="",ylab="Nombre",las=1,type="n",main=paste0("Nombre de patients hospitalisés (x 1000)\n",format(temps[1],"%d %b")," - ",format(temps[2],"%d %b")),xaxt="n")
 segments(as.numeric(oldtimers$jour),0,as.numeric(oldtimers$jour),(oldtimers$hosp+greenhorns$hosp)/1000)
 segments(as.numeric(greenhorns$jour),0,as.numeric(greenhorns$jour),greenhorns$hosp/1000,col="green")
+axis.POSIXct(1,oldtimers$jour)
 
 legend(locator(n=1),fill=c("black","green"),legend=legd,bty="n")
 
