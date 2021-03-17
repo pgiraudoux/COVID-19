@@ -21,7 +21,8 @@ deconf1<-strptime("11/05/2020",format="%d/%m/%Y")
 conf2<-strptime("30/10/2020",format="%d/%m/%Y")
 deconf2<-strptime("28/11/2020",format="%d/%m/%Y")
 couvfeu18<-strptime("02/01/2021",format="%d/%m/%Y")
-sequence<-c(conf1,deconf1,conf2,deconf2,couvfeu18)
+mag20000<-strptime("01/02/2021",format="%d/%m/%Y")
+sequence<-c(conf1,deconf1,conf2,deconf2,couvfeu18,mag20000)
 
 cov19<-read.table(url2,sep=";",header=TRUE)
 cov19<-cov19[nchar(cov19$dep)<3,]
@@ -34,9 +35,9 @@ cov19n$jour<-strptime(cov19n$jour,format="%Y-%m-%d")
 span<-40/length(cov19n$jour)
 
 temps<-c(cov19n$jour[1],cov19n$jour[nrow(cov19n)])
-par(mfrow=c(2,2))
+# par(mfrow=c(2,2))
 
-# par(mfrow=c(1,1))
+par(mfrow=c(1,1))
 def<-par()$mar
 par(mar=c(5.1,4.1,4.1,4.1))
 
@@ -44,11 +45,11 @@ plot(cov19n$jour,cov19n$incid_hosp,xlab="",ylab="Entrées/jour",las=1,type="h",ma
 # rect(as.numeric(strptime("24/12/2020",format="%d/%m/%Y")),min(cov19n$incid_hosp), as.numeric(strptime("01/01/2021",format="%d/%m/%Y")),max(cov19n$incid_hosp)+10,col="red",border=NA)
 loe<-loess(cov19n$incid_hosp~as.numeric(cov19n$jour),span=span)
 lines(loe$fitted~as.numeric(cov19n$jour),col="red",lwd=2)
-abline(v=as.numeric(sequence),col=c("red","green","red","green","orange"))
-mtext(c(rep(c("conf","déconf"),2),"cf18"),at=as.numeric(sequence),col=c("red","green","red","green","orange"))
+abline(v=as.numeric(sequence),col=c("red","green","red","green","orange","orange"))
+mtext(c(rep(c("conf","déconf"),2),"cf18","mag20000"),at=as.numeric(sequence),col=c("red","green","red","green","orange","orange"))
 segments(as.numeric(strptime("19/12/2020",format="%d/%m/%Y")), 65,as.numeric(strptime("3/1/2021",format="%d/%m/%Y")),65,col="green")
 segments(as.numeric(strptime("19/12/2020",format="%d/%m/%Y")),-10,as.numeric(strptime("19/12/2020",format="%d/%m/%Y")),65,lty=2,col="green")
-text(x=(as.numeric(strptime("19/12/2020",format="%d/%m/%Y"))+as.numeric(strptime("3/1/2021",format="%d/%m/%Y")))/2,y=65,labels="Vacances",col="green",pos=3)
+text(x=(as.numeric(strptime("19/12/2020",format="%d/%m/%Y"))+as.numeric(strptime("3/1/2021",format="%d/%m/%Y")))/2,y=65,labels="Vac. Noël",col="green",pos=3)
 
 valtr<-((Y-min(Y))/(max(Y)-min(Y)))*30+30
 lines(X,valtr,col="red",lty=2,lwd=2)
@@ -62,8 +63,9 @@ plot(cov19n$jour,cov19n$incid_hosp-cov19n$incid_rad,xlab="",ylab="Entrées-sortie
 # plot(cov19n$jour,cumsum(cov19n$incid_hosp)-cumsum(cov19n$incid_rad),xlab="",ylab="Nombre d'hospitalisés",las=1,type="l",main="Nombre d'hospitalisés")
 
 
+
 plot(cov19n$jour,cov19n$incid_rea,xlab="",ylab="Entrées/jour",las=1,type="h",main="Nombre d'entrées\nen réanimation/jour")
-loe<-loess(cov19n$incid_rea~as.numeric(cov19n$jour),span=span)
+loe<-loess(cov19n$incid_rea~as.numeric(cov19n$jour),span=span*1.5)
 lines(loe$fitted~as.numeric(cov19n$jour),col="red",lwd=2)
 
 

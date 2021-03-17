@@ -1,6 +1,9 @@
 
 # ecdc<-read.csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv") # jusquen 2020
 
+# Every week between Monday and Wednesday, a team of epidemiologists screen up to 500 relevant sources to collect the latest figures for publication on Thursday. https://www.ecdc.europa.eu/en/covid-19/data-collection
+
+
 ecdc<-read.csv("https://opendata.ecdc.europa.eu/covid19/nationalcasedeath/csv",encoding="UTF-8")
 names(ecdc)[1]<-"country"
 
@@ -26,7 +29,9 @@ pays<-pays[order(pays$year_week),]
 firstcase<-which(cumsum(pays$weekly_count)>=start)[1]
 
 mydate<-strptime(paste0(pays$year_week,"-1"),format="%Y-%W-%u")[firstcase:length(pays$year_week)]
-mydaterange<-range(mydate,na.rm=TRUE)
+
+mydaterange<-range(mydate,na.rm=TRUE)+6*24*60*60 # end of week on Sunday
+
 
 dates<-seq(mydaterange[1],mydaterange[2],l=length(firstcase:length(pays$year_week)))
 

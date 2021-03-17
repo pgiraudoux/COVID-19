@@ -6,7 +6,6 @@ read.delim("region2020.csv",sep=",",encoding="UTF-8")
 urlage<-"https://www.data.gouv.fr/fr/datasets/r/08c18e08-6780-452d-9b8c-ae244ad529b3"
 
 cov19age<-read.table(urlage,sep=";",header=TRUE)
-
 cov19age<-cov19age[cov19age$cl_age90!=0,]
 cov19age<-cov19age[cov19age$reg>=11,]
 
@@ -21,7 +20,7 @@ head(cov19age,20)
 unique(cov19age$cl_age90)
 unique(cov19age$reg)
 
-aglim<-59
+aglim<-69
 suplim<-cov19age$cl_age90>=aglim
 
 legd<-c(paste0(">= ",aglim," ans"),paste0("< ",aglim," ans"))
