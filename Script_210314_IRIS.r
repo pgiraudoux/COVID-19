@@ -2,7 +2,7 @@ library(rgdal)
 library(pgirmess)
 library(dplyr)
 library(RColorBrewer)
-library(classInt)
+# library(classInt)
 library(wordcloud)
 
 
@@ -41,19 +41,18 @@ textplot(coordinates(irisBes)[irisBes$NOM_COM=="Besançon",1],coordinates(irisBes
 dev.off()
 
 
-# irisdb<-read.delim("sg-iris-opendata-2021-03-13-17h22.csv",sep=",") # lecture locale (téléchargement ~23 s à https://www.data.gouv.fr/fr/datasets/donnees-de-laboratoires-infra-departementales-durant-lepidemie-covid-19/#_)
+irisdb<-read.delim("sg-iris-opendata-2021-03-18-17h22.csv",sep=",") # lecture locale (téléchargement ~23 s à https://www.data.gouv.fr/fr/datasets/donnees-de-laboratoires-infra-departementales-durant-lepidemie-covid-19/#_)
 
-to<-Sys.time()
-irisdb<-read.table(urliris, sep=",",header=TRUE) #URL stable
-t1<-Sys.time()
-t1-to
+
+
+# to<-Sys.time()
+# irisdb<-read.table(urliris, sep=",",header=TRUE) #URL stable
+# t1<-Sys.time()
+# t1-to
 # Time difference of 6.653344 mins
 
-save.image()
 
-
-nrow(irisdb)
-head(irisdb)
+dim(irisdb)
 unique(irisdb$clage_65)
 sort(unique(irisdb$ti_classe))
 
@@ -63,16 +62,17 @@ tail(irisdb)
 # extraction Besançon
 idx2<-irisdb$iris2019%in%irisBes@data$CODE_IRIS
 irisdb<-irisdb[idx2,]
+irisdb$date<-strptime(substr(irisdb$semaine_glissante,12,21),format="%Y-%m-%d")
 
 ############### Générique
 
-datesuivies<-unique(irisdbsel$date)
+datesuivies<-sort(unique(irisdbsel$date))
 range(irisdbsel$date)
 datesuivies
 length(datesuivies)/7
 
-agesel<-0 # choix de la classe d'âge (0 = tous âges ou 65 = plus de 65)
-ndate<-4 # nombre de dates
+agesel<-65 # choix de la classe d'âge (0 = tous âges ou 65 = plus de 65)
+ndate<-5 # nombre de dates
 irisdbsel<-irisdb[irisdb$clage_65==agesel,]
 irisdbsel$date<-strptime(substr(irisdbsel$semaine_glissante,12,21),format="%Y-%m-%d")
 head(irisdbsel)
@@ -113,8 +113,11 @@ titab
 
 rowSums(titab)
 
+
+pal<-brewer.pal(8,"Reds")
+
 ## carte toutes catégories
-par(mfrow=c(2,2))
+par(mfrow=c(3,2))
 par(mar=c(0,0,0,0))
 for(i in select) {
   mydate<-unique(irisdbsel$date)[i]
@@ -132,7 +135,7 @@ for(i in select) {
 
 
 ## carte seuillage réduit
-par(mfrow=c(2,2))
+par(mfrow=c(2,3))
 par(mar=c(0,0,0,0))
 for(i in select) {
   mydate<-unique(irisdbsel$date)[i]
@@ -146,6 +149,35 @@ for(i in select) {
   text(coordinates(irisBes[64,]),"Chailluz",cex=0.7)
   mtext(mydate,line=-2,font=2)
   legend(list(x=909000,y=6705000),fill=c("green","orange","red","violet","grey"),legend=c("<50","[50, 250[","[250, 1000[",">=1000","no data"),bty="n",title="")
+}
+
+
+
+
+# Video
+# magick convert -delay 70 *.jpg video.mp4
+
+agesel<-0 # choix de la classe d'âge (0 = tous âges ou 65 = plus de 65)
+irisdbsel<-irisdb[irisdb$clage_65==agesel,]
+irisdbsel$date<-strptime(substr(irisdbsel$semaine_glissante,12,21),format="%Y-%m-%d")
+head(irisdbsel)
+select<-sort(unique(irisdbsel$date))
+
+for(i in 1:length(select)) {
+  jpeg(paste0("./video/",select[i],"_",agesel,".jpg"))
+  par(mar=c(0,0,0,0))
+  mydate<-select[i]
+  print(mydate)
+  idxti<-match(irisBes$CODE_IRIS,irisdbsel[irisdbsel$date==mydate,"iris2019"])
+  valti<-irisdbsel[irisdbsel$date==mydate,"ti_classe"][idxti]
+  colBes<-recode(valti, "[0;10[" = "green", "[10;20["="green", "[20;50["="green", '[50;150[' = "orange", "[150;250["="orange", "[250;500["="red", "[500;1000["="red","[1000;Max]"="violet")
+  colBes[colBes==""]<-NA
+  plot(irisBes,col=colBes)
+  plot(irisBes[64,], col="grey",add=TRUE)
+  text(coordinates(irisBes[64,]),"Chailluz",cex=0.7)
+  mtext(mydate,line=-2,font=2)
+  legend(list(x=909000,y=6701000),fill=c("green","orange","red","violet","grey"),legend=c("<50","[50, 250[","[250, 1000[",">=1000","no data"),bty="n",title="")
+  dev.off()
 }
 
 

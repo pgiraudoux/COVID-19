@@ -22,7 +22,7 @@ tail(ecdc[ecdc$country==country,])
 
 par(mfrow=c(2,2))
 
-indic<-"cases"
+indic<-"deaths"
 pays<-ecdc[ecdc$country==country & ecdc$indicator==indic,]
 pays<-pays[order(pays$year_week),]
 # pays
