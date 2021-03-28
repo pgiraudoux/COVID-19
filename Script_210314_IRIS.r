@@ -40,10 +40,13 @@ plot(irisBes[irisBes$NOM_COM=="Besançon",],lwd=0.1)
 textplot(coordinates(irisBes)[irisBes$NOM_COM=="Besançon",1],coordinates(irisBes)[irisBes$NOM_COM=="Besançon",2],words=irisBes$NOM_IRIS[irisBes$NOM_COM=="Besançon"],cex=0.5,new=FALSE)
 dev.off()
 
+# irisdb0<-read.delim("sg-iris-opendata-2021-03-13-17h22.csv",sep=",") # lecture locale (téléchargement ~23 s à https://www.data.gouv.fr/fr/datasets/donnees-de-laboratoires-infra-departementales-durant-lepidemie-covid-19/#_)
+# 
+# head(irisdb0)
 
-irisdb<-read.delim("sg-iris-opendata-2021-03-18-17h22.csv",sep=",") # lecture locale (téléchargement ~23 s à https://www.data.gouv.fr/fr/datasets/donnees-de-laboratoires-infra-departementales-durant-lepidemie-covid-19/#_)
 
 
+irisdb<-read.delim("sg-iris-opendata-2021-03-26-18h14.csv",sep=",") # lecture locale (téléchargement ~23 s à https://www.data.gouv.fr/fr/datasets/donnees-de-laboratoires-infra-departementales-durant-lepidemie-covid-19/#_)
 
 # to<-Sys.time()
 # irisdb<-read.table(urliris, sep=",",header=TRUE) #URL stable
@@ -64,15 +67,16 @@ idx2<-irisdb$iris2019%in%irisBes@data$CODE_IRIS
 irisdb<-irisdb[idx2,]
 irisdb$date<-strptime(substr(irisdb$semaine_glissante,12,21),format="%Y-%m-%d")
 
+
 ############### Générique
 
-datesuivies<-sort(unique(irisdbsel$date))
-range(irisdbsel$date)
+datesuivies<-sort(unique(irisdb$date))
+range(irisdb$date)
 datesuivies
 length(datesuivies)/7
 
 agesel<-65 # choix de la classe d'âge (0 = tous âges ou 65 = plus de 65)
-ndate<-5 # nombre de dates
+ndate<-6 # nombre de dates
 irisdbsel<-irisdb[irisdb$clage_65==agesel,]
 irisdbsel$date<-strptime(substr(irisdbsel$semaine_glissante,12,21),format="%Y-%m-%d")
 head(irisdbsel)
@@ -81,19 +85,19 @@ select<-seq(length(datesuivies),1,l=ndate) # sélection de dates
 
 # Tableau d'évolution
 
-ti.db<-matrix(nrow=length(irisdbsel[irisdbsel$date==mydate,"iris2019"]),ncol=ndate)
+ti.db<-matrix(nrow=length(unique(irisdb[,"iris2019"])),ncol=ndate)
 ii<-1
 for(i in select) {
-  mydate<-unique(irisdbsel$date)[i]
+  mydate<-unique(irisdb$date)[i]
   print(mydate)
-  tmp<-irisdbsel[irisdbsel$date==mydate,]
+  tmp<-irisdbsel[irisdb$date==mydate,]
   idxti<-match(irisBes$CODE_IRIS,irisdbsel[irisdbsel$date==mydate,"iris2019"])
   valti<-irisdbsel[irisdbsel$date==mydate,"ti_classe"][idxti]
   ti.db[,ii]<-valti
   ii<-ii+1
 }
 rownames(ti.db)<-irisBes$NOM_IRIS
-colnames(ti.db)<-as.character(unique(irisdbsel$date)[select])
+colnames(ti.db)<-as.character(unique(irisdb$date)[select])
 ti.db
 
 
@@ -111,8 +115,18 @@ for(i in 1:length(restitab)){
 titab[is.na(titab)]<-0
 titab
 
-rowSums(titab)
+rowSums(titab[,6:8])/rowSums(titab)
 
+ttdatestab65<-table(irisdb$date[irisdb$clage_65==65],irisdb$ti_classe[irisdb$clage_65==65])[,2:9][,c(1,2,5,7,4,6,8,3)]
+ttdatestab<-table(irisdb$date[irisdb$clage_65==0],irisdb$ti_classe[irisdb$clage_65==0])[,2:9][,c(1,2,5,7,4,6,8,3)]
+
+
+tsages<-rowSums(ttdatestab[,6:8])/rowSums(ttdatestab)
+agesup65<-rowSums(ttdatestab65[,6:8])/rowSums(ttdatestab65)
+
+plot(datesuivies,tsages,type="l",ylim=range(tsages,agesup65),las=1,ylab="ratio d'unités IRIS à incidence >= 250",xlab="",col="green3")
+lines(datesuivies,agessup65,col="black")
+legend(list(x=as.numeric(min(datesuivies)),y=0.6),legend=c("tous âges","plus de 65 ans"),lty=1,col=c("green3","black"),bty="n",title="")
 
 pal<-brewer.pal(8,"Reds")
 
@@ -157,7 +171,7 @@ for(i in select) {
 # Video
 # magick convert -delay 70 *.jpg video.mp4
 
-agesel<-0 # choix de la classe d'âge (0 = tous âges ou 65 = plus de 65)
+agesel<-65 # choix de la classe d'âge (0 = tous âges ou 65 = plus de 65)
 irisdbsel<-irisdb[irisdb$clage_65==agesel,]
 irisdbsel$date<-strptime(substr(irisdbsel$semaine_glissante,12,21),format="%Y-%m-%d")
 head(irisdbsel)

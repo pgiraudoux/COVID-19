@@ -48,7 +48,9 @@ lines(loe$fitted~as.numeric(cov19n$jour),col="red",lwd=2)
 abline(v=as.numeric(sequence),col=c("red","green","red","green","orange","orange"))
 mtext(c(rep(c("conf","déconf"),2),"cf18","mag20000"),at=as.numeric(sequence),col=c("red","green","red","green","orange","orange"))
 segments(as.numeric(strptime("19/12/2020",format="%d/%m/%Y")), 65,as.numeric(strptime("3/1/2021",format="%d/%m/%Y")),65,col="green")
+
 segments(as.numeric(strptime("19/12/2020",format="%d/%m/%Y")),-10,as.numeric(strptime("19/12/2020",format="%d/%m/%Y")),65,lty=2,col="green")
+
 text(x=(as.numeric(strptime("19/12/2020",format="%d/%m/%Y"))+as.numeric(strptime("3/1/2021",format="%d/%m/%Y")))/2,y=65,labels="Vac. Noël",col="green",pos=3)
 
 valtr<-((Y-min(Y))/(max(Y)-min(Y)))*30+30
