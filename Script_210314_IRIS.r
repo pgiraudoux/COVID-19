@@ -124,7 +124,7 @@ ttdatestab<-table(irisdb$date[irisdb$clage_65==0],irisdb$ti_classe[irisdb$clage_
 tsages<-rowSums(ttdatestab[,6:8])/rowSums(ttdatestab)
 agesup65<-rowSums(ttdatestab65[,6:8])/rowSums(ttdatestab65)
 
-plot(datesuivies,tsages,type="l",ylim=range(tsages,agesup65),las=1,ylab="ratio d'unités IRIS à incidence >= 250",xlab="",col="green3")
+plot(datesuivies,tsages,type="l",ylim=range(tsages,agesup65),las=1,ylab="ratio d'unités IRIS à incidence \u2265 250",xlab="",col="green3")
 lines(datesuivies,agessup65,col="black")
 legend(list(x=as.numeric(min(datesuivies)),y=0.6),legend=c("tous âges","plus de 65 ans"),lty=1,col=c("green3","black"),bty="n",title="")
 
